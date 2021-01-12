@@ -38,6 +38,7 @@ class Redpacket extends Base
             return show(1038);
         }
         
+        
         //已开次数
         $alreadytimes = $resultOpenAuth['times'];
         if ($alreadytimes) {
