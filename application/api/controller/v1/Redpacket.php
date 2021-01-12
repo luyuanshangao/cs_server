@@ -12,6 +12,15 @@ class Redpacket extends Base
     protected $noAuthArr = [];  //用户登录接口白名单
     protected $noSignArr = [];  //接口Sign验证白名单
 
+    // $superiorUser = $UserModel->where(['incode' => $dataArr['incode']])->find();
+    // if (!$superiorUser) {
+    //     return show(1036);
+    // }
+    // $dataArr['superiorId'] = $superiorUser->userId;
+    // if (isset($userArr['superiorId'])) {
+    //     ExtensionInvitation::addInvitation($result->userId, $userArr['superiorId']);
+    //     Redpacket::addHelp($result->userId, $userArr['superiorId']);
+    // }
     /**
      * @name: 开红包
      * @author: gz

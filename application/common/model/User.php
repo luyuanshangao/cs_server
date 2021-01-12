@@ -87,11 +87,6 @@ class User extends BaseModel
             );
              //用户统计信息
              UserCumulative::create(['userId' => $result->userId]);
-             //邀请信息
-            if (isset($userArr['superiorId'])) {
-                ExtensionInvitation::addInvitation($result->userId, $userArr['superiorId']);
-                Redpacket::addHelp($result->userId, $userArr['superiorId']);
-            }
 
 
              //注册消息
