@@ -1,0 +1,23 @@
+{
+    "name": "ipip/datx",
+    "type": "library",
+    "description": "IPIP.net官方支持的IP数据库datx格式解析库",
+    "keywords": ["ipip.net","datx","geoip","geolocation", "geo","ip"],
+    "homepage": "https://www.ipip.net",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "IPIP.net",
+            "email": "frk@ipip.net",
+            "homepage": "https://www.ipip.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },    
+    "autoload": {
+        "psr-4": {
+            "ipip\\datx\\": "src/ipip/datx/"
+        }
+    }
+}

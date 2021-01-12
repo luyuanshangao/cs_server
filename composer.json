@@ -1,0 +1,16 @@
+{
+   "require": {
+        "guzzle/http": "^3.9",
+        "weiwei/api-doc": "^1.6",
+        "cydrickn/number": "^1.2",
+        "ipip/datx": "^0.2.0",
+        "furqansiddiqui/ethereum-rpc": "^0.1.5",
+        "furqansiddiqui/erc20-php": "^0.1.4"
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    }
+}

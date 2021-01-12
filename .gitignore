@@ -1,0 +1,9 @@
+.idea
+runtime
+database.php
+public/download/wgt/*
+public/.htaccess
+.git
+.vscode/
+.vscode/settings.json
+.vscode/launch.json
