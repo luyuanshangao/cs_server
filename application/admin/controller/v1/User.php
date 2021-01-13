@@ -137,7 +137,6 @@ class User extends Base
         try {
             $AssetsModel = new \app\common\model\Assets();
             $actionName = 'add' . $data['assetsType'];
-            halt($actionName);
             $AssetsModel->{$actionName}($data['userId'], $data['amount'], '人工充值');
         } catch (\Exception $th) {
             return show(0);
