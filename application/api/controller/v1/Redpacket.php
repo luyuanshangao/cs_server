@@ -4,6 +4,7 @@ namespace app\api\controller\v1;
 
 use app\admin\model\User;
 use app\api\controller\Base;
+use app\common\model\Assets;
 use app\common\model\Redpacket as RedpacketModel;
 use app\common\model\RedpacketHelp;
 use app\common\model\RedpacketCash;
@@ -17,8 +18,8 @@ class Redpacket extends Base
    
     public function index(){
        
-        $helpVerifyData = Cache::get('helpVerify_'.'18378');
-        var_export($helpVerifyData);die;
+        // $helpVerifyData = Cache::get('helpVerify_'.'18378');
+        // var_export($helpVerifyData);die;
     }
     /**
      * @name: 红包信息
@@ -344,8 +345,13 @@ class Redpacket extends Base
      */
     public function cash()
     {
-        RedpacketModel::cashAmount($this->userId);
-        return show(1);
+        #判断钱包是否有充值
+        $assetsDatas = Assets::where(['amount'=>['gt',0]])->find();
+        if($assetsDatas){
+            RedpacketModel::cashAmount($this->userId);
+            return show(1);
+        }
+        return show(1073);
     }
 
     /**
