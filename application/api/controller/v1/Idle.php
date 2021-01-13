@@ -230,6 +230,7 @@ class Idle extends Base
                 # 已卖出
                     $IdleDealModel = new IdleDeal();
                     $condition = [
+                        'dealStats'=>['in',[0,2,3,4,5,7,8,9]],
                         'sellUserId' => $this->userId,
                         'del' => 0,
                     ];
