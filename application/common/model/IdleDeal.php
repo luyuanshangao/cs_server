@@ -246,7 +246,21 @@ class IdleDeal extends BaseModel
             $idleInfo->save();
             $this->commit();
             # 清除redis队列中提示
-           
+            OrderDelayed::delOrderDelayedTask(
+                json_encode([
+                    'action' => 'delDeal',
+                    'time' => ($dealInfo->createTime + 900),
+                    'data' => ['userId' => $userId,'idleDealId' => $dealInfo['idleDealId']]
+                ])
+            );
+            
+            OrderDelayed::delOrderDelayedTask(
+                json_encode([
+                    'action' => 'sendDeal',
+                    'time' => ($dealInfo->createTime + 600),
+                    'data' => ['userId' => $userId,'idleDealId' => $dealInfo['idleDealId']]
+                ])
+            );
             return true;
         } catch (\Exception $th) {
             $this->rollback();
