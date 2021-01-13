@@ -78,25 +78,19 @@ class RedpacketHelp extends BaseModel
      * @param {*} $userId
      * @return {*}
      */
-    public static function isAgainHelp($userId,$isUserId){
-
-         #通过被助力userId 查找其是否含有助力验证 
-         $helpVerifyData = Cache::get('helpVerify_'.$userId);
-         if(!$helpVerifyData){
-            Redpacket::addHelp($isUserId, $helpVerifyData['tohelp']);
-            return false;
-         }
+    public static function isAgainHelp($topData,$endData){
+  
          
-         if($helpVerifyData['verifyWordResult'] !== 1){
+         if($topData['verifyWordResult'] !== 1){
             return false;
          }
          
          #上一层助力是否需要进行邀请验证
-         if($helpVerifyData['verifyType'] !== 2){
+         if($topData['verifyType'] !== 2){
             return false;
          }
          #上一层 被助力userId
-         $toHelp = $helpVerifyData['tohelp'];
+         $toHelp = $topData['tohelp'];
 
          #上一层 助力红包是否还有效
          $checkResult = self::checkEffec($toHelp);
@@ -108,25 +102,22 @@ class RedpacketHelp extends BaseModel
          
          #更新验证信息
         $expire = $dataRedpacket['expireTime'] - time();
-        $helpVerifyData['intvNum'] -= 1;
+        $topData['intvNum'] -= 1;
         if($expire > 0){
-            Cache::set('helpVerify_'.$userId,$helpVerifyData,$expire);
+            Cache::set('helpVerify_'.$endData['tohelp'],$topData,$expire);
         }
         
          #上一层 助力红包 需要邀请的人数
          
-         if($helpVerifyData['intvNum'] == 0){
+         if($topData['intvNum'] == 0){
             #为上一层助力成功
-            $resultAddHelp = Redpacket::addHelp($userId,$toHelp);
+            $resultAddHelp = Redpacket::addHelp($endData['tohelp'],$toHelp);
             if(!$resultAddHelp){
                 return false;
             }
          }else{
              return false;
          }
-
-
-
         
         return true;
     }

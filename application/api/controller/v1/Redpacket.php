@@ -14,15 +14,7 @@ class Redpacket extends Base
     protected $noAuthArr = ['index'];  //用户登录接口白名单
     protected $noSignArr = [];  //接口Sign验证白名单
 
-    // $superiorUser = $UserModel->where(['incode' => $dataArr['incode']])->find();
-    // if (!$superiorUser) {
-    //     return show(1036);
-    // }
-    // $dataArr['superiorId'] = $superiorUser->userId;
-    // if (isset($userArr['superiorId'])) {
-    //     ExtensionInvitation::addInvitation($result->userId, $userArr['superiorId']);
-    //     Redpacket::addHelp($result->userId, $userArr['superiorId']);
-    // }
+   
     public function index(){
        
         $helpVerifyData = Cache::get('helpVerify_'.'18378');
@@ -230,59 +222,18 @@ class Redpacket extends Base
         $resultCheck = $this->checkWalletArr($walletWordsStr,$walletWordsArr);
         
         if($resultCheck){
-            #助力
-            RedpacketHelp::isAgainHelp($helpVerifyData['tohelp'],$this->userId);
-                        //     #通过被助力userId 查找其是否含有助力验证 
-                        // $helpVerifyData = Cache::get('helpVerify_'.$userId);
-                        // if(!$helpVerifyData){
-                        //     Redpacket::addHelp($isUserId, $helpVerifyData['tohelp']);
-                        //     return false;
-                        // }
-                        
-                        // if($helpVerifyData['verifyWordResult'] !== 1){
-                        //     return false;
-                        // }
-                        
-                        // #上一层助力是否需要进行邀请验证
-                        // if($helpVerifyData['verifyType'] !== 2){
-                        //     return false;
-                        // }
-                        // #上一层 被助力userId
-                        // $toHelp = $helpVerifyData['tohelp'];
 
-                        // #上一层 助力红包是否还有效
-                        // $checkResult = self::checkEffec($toHelp);
-                        // list($dataRedpacket , $countHelpNum) = $checkResult;
-                        // if(!$checkResult){
-                        //     return false;
-                        // }
-
-                        
-                        // #更新验证信息
-                        // $expire = $dataRedpacket['expireTime'] - time();
-                        // $helpVerifyData['intvNum'] -= 1;
-                        // if($expire > 0){
-                        //     Cache::set('helpVerify_'.$userId,$helpVerifyData,$expire);
-                        // }
-                        
-                        // #上一层 助力红包 需要邀请的人数
-                        
-                        // if($helpVerifyData['intvNum'] == 0){
-                        //     #为上一层助力成功
-                        //     $resultAddHelp = Redpacket::addHelp($userId,$toHelp);
-                        //     if(!$resultAddHelp){
-                        //         return false;
-                        //     }
-                        // }else{
-                        //     return false;
-                        // }
-
-
-
-                        
-                        // return true;
-           
+            #验证结果保存
             $helpVerifyData['verifyWordResult'] = 1;
+            #通过被助力userId 查找其是否含有助力验证 
+            $topHelpVerifyData = Cache::get('helpVerify_'.$helpVerifyData['tohelp']);
+            if(!$topHelpVerifyData || $topHelpVerifyData['verifyType'] == 1){
+                RedpacketModel::addHelp($this->userId, $helpVerifyData['tohelp']);
+            }
+            
+            #助力
+            RedpacketHelp::isAgainHelp($topHelpVerifyData,$helpVerifyData);
+            
            
         }else{
             $helpVerifyData['verifyWordFreq'] -= 1;
