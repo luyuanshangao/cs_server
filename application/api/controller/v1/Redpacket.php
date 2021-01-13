@@ -2,14 +2,16 @@
 
 namespace app\api\controller\v1;
 
+use app\admin\model\User;
 use app\api\controller\Base;
 use app\common\model\Redpacket as RedpacketModel;
 use app\common\model\RedpacketHelp;
 use app\common\model\RedpacketCash;
+use think\Cache;
 
 class Redpacket extends Base
 {
-    protected $noAuthArr = [];  //用户登录接口白名单
+    protected $noAuthArr = ['index'];  //用户登录接口白名单
     protected $noSignArr = [];  //接口Sign验证白名单
 
     // $superiorUser = $UserModel->where(['incode' => $dataArr['incode']])->find();
@@ -21,6 +23,34 @@ class Redpacket extends Base
     //     ExtensionInvitation::addInvitation($result->userId, $userArr['superiorId']);
     //     Redpacket::addHelp($result->userId, $userArr['superiorId']);
     // }
+    public function index(){
+       
+        $helpVerifyData = Cache::get('helpVerify_'.'18378');
+        var_export($helpVerifyData);die;
+    }
+    /**
+     * @name: 红包信息
+     * @author: gz
+     * @description: 
+     * @param {*}
+     * @return {*}
+     */
+    public function info(){
+        $helpVerifyData = Cache::get('helpVerify_'.$this->userId);
+        if(!$helpVerifyData){
+            $isHelp = 0;
+            $userName = '';
+        }else{
+            $isHelp = 1;
+            $toHelpUserId = $helpVerifyData['tohelp'];
+            $userName = User::where(['userId'=>$toHelpUserId])->value('userName');
+        }
+        return show(1,[
+            'isHelp'=>$isHelp,
+            'userName'=>$userName,
+        ]);
+    }     
+
     /**
      * @name: 开红包
      * @author: gz
@@ -37,7 +67,6 @@ class Redpacket extends Base
         if (is_bool($resultOpenAuth)) {
             return show(1038);
         }
-        
         
         //已开次数
         $alreadytimes = $resultOpenAuth['times'];
@@ -144,11 +173,130 @@ class Redpacket extends Base
             return show(0);
         }
         
+
+        #助力验证
+        $helpVerifyData = Cache::get('helpVerify_'.$this->userId);
         return show(1, [
             'assetsType' => $assetsType,
             'amount' => $firstMoney,
-            'speed' => $firstBoostNum / $startBoost
+            'speed' => $firstBoostNum / $startBoost,
+            'helpVerifyData' => $helpVerifyData? $helpVerifyData : [],
         ]);
+    }
+
+    /**
+     * @name: 验证助记词
+     * @author: gz
+     * @description: 
+     * @param {*}
+     * @return {*}
+     */
+    public function verifyWaWord(){
+        
+        $waWord = $this->request->post('waWord');
+      
+        try {
+            $waWord = json_decode($waWord,true);
+            if(!$waWord || !is_array($waWord) || count($waWord) !== 2){
+                throw new \Exception("Error");
+                
+            }
+        } catch (\Exception $th) {
+            return show(0000);
+        }
+   
+        #验证
+        $helpVerifyData = Cache::get('helpVerify_'.$this->userId);
+       
+        if(!$helpVerifyData){
+            return show(1070);
+        }
+        if($helpVerifyData['verifyWordFreq'] == 0){
+            return show(1071);
+        }
+
+        #判断被助力人红包是否有效
+        $dataRedpacket = RedpacketModel::where(['userId'=>$helpVerifyData['tohelp']])->order('createTime desc')->find();
+        if (!$dataRedpacket) {
+            return show(1072);
+        }
+       
+     
+        list($first,$secend) = $helpVerifyData['verifyWord'];
+       
+        $walletWordsArr = json_encode([$first=>$waWord[0],$secend=>$waWord[1]]);
+        $userObj = $this->clientInfo;
+        $walletWordsStr = $userObj->walletWords; 
+        $resultCheck = $this->checkWalletArr($walletWordsStr,$walletWordsArr);
+        
+        if($resultCheck){
+            #助力
+            RedpacketHelp::isAgainHelp($helpVerifyData['tohelp'],$this->userId);
+                        //     #通过被助力userId 查找其是否含有助力验证 
+                        // $helpVerifyData = Cache::get('helpVerify_'.$userId);
+                        // if(!$helpVerifyData){
+                        //     Redpacket::addHelp($isUserId, $helpVerifyData['tohelp']);
+                        //     return false;
+                        // }
+                        
+                        // if($helpVerifyData['verifyWordResult'] !== 1){
+                        //     return false;
+                        // }
+                        
+                        // #上一层助力是否需要进行邀请验证
+                        // if($helpVerifyData['verifyType'] !== 2){
+                        //     return false;
+                        // }
+                        // #上一层 被助力userId
+                        // $toHelp = $helpVerifyData['tohelp'];
+
+                        // #上一层 助力红包是否还有效
+                        // $checkResult = self::checkEffec($toHelp);
+                        // list($dataRedpacket , $countHelpNum) = $checkResult;
+                        // if(!$checkResult){
+                        //     return false;
+                        // }
+
+                        
+                        // #更新验证信息
+                        // $expire = $dataRedpacket['expireTime'] - time();
+                        // $helpVerifyData['intvNum'] -= 1;
+                        // if($expire > 0){
+                        //     Cache::set('helpVerify_'.$userId,$helpVerifyData,$expire);
+                        // }
+                        
+                        // #上一层 助力红包 需要邀请的人数
+                        
+                        // if($helpVerifyData['intvNum'] == 0){
+                        //     #为上一层助力成功
+                        //     $resultAddHelp = Redpacket::addHelp($userId,$toHelp);
+                        //     if(!$resultAddHelp){
+                        //         return false;
+                        //     }
+                        // }else{
+                        //     return false;
+                        // }
+
+
+
+                        
+                        // return true;
+           
+            $helpVerifyData['verifyWordResult'] = 1;
+           
+        }else{
+            $helpVerifyData['verifyWordFreq'] -= 1;
+        }
+        $expire = $dataRedpacket['expireTime'] - time();
+        if($expire > 0){
+            Cache::set('helpVerify_'.$this->userId,$helpVerifyData,$expire);
+        }
+
+        return show(1,[
+            'resultCheck'=>$resultCheck,
+            'verifyWordFreq'=> $helpVerifyData['verifyWordFreq'],
+        ]);
+        
     }
 
     /**
