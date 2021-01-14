@@ -16,11 +16,11 @@
 			}
 
 			div{
-				line-height: 1.5;
+				line-height: 2;
 			}
 			p{
 				color:#000;
-				line-height: 1.5;
+				line-height: 2.5;
 				-webkit-margin-before: 0;
 				-webkit-margin-after: 0;
 				text-indent:1.5em;
