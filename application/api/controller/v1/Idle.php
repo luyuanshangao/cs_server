@@ -191,7 +191,7 @@ class Idle extends Base
         if ($idleInfo['verifyStatus'] == 0 || $idleInfo['verifyStatus'] == 1) {
             return show(0);
         }
-        $idleInfo->update(['del'=>1],['infoSn'=>$infoSn]);
+        $idleInfo->update(['del' => 1], ['infoSn' => $infoSn]);
         return show(1);
     }
 
@@ -230,7 +230,7 @@ class Idle extends Base
                 # 已卖出
                     $IdleDealModel = new IdleDeal();
                     $condition = [
-                        'dealStats'=>['in',[0,2,3,4,5,7,8,9]],
+                        'dealStats' => ['in',[0,2,3,4,5,7,8,9]],
                         'sellUserId' => $this->userId,
                         'del' => 0,
                     ];
@@ -267,7 +267,7 @@ class Idle extends Base
                         'idleInfoId' => [ 'in', $idleInfoIds] ,
                     ];
                     $total = $IdleInfoModel->getCount($condition);
-                    $list = $IdleInfoModel->getList($condition, $this->from, $this->size,true, 'createTime desc',['collectNum','views','picArr','frontCode']);
+                    $list = $IdleInfoModel->getList($condition, $this->from, $this->size, true, 'createTime desc', ['collectNum','views','picArr','frontCode']);
 
                 break;
             
@@ -492,13 +492,13 @@ class Idle extends Base
         $messages =  IdleMessage::orderTime($list);
 
         $IdleCollectionModel = new IdleCollection();
-        $IdleColleData = $IdleCollectionModel->get(['userId'=>$this->userId,'idleInfoId'=>$idleInfoId]);
+        $IdleColleData = $IdleCollectionModel->get(['userId' => $this->userId,'idleInfoId' => $idleInfoId]);
 
         $returnData  = [
             'userData' => $userInfo,
             'idleData' => $idleInfo,
             'messageData' => $messages,
-            'isColle'=> $IdleColleData ? 1 :0
+            'isColle' => $IdleColleData ? 1 : 0
         ];
         
         return show(1, $returnData);
@@ -515,11 +515,11 @@ class Idle extends Base
     {
         $getArr  = $this->checkdate('Idle', 'get', 'idleDetail');
         $IdleCollectionModel = new IdleCollection();
-        $IdleColleData = $IdleCollectionModel->get(['userId'=>$this->userId,'idleInfoId'=>$getArr['idleInfoId']]);
-        if($IdleColleData){
+        $IdleColleData = $IdleCollectionModel->get(['userId' => $this->userId,'idleInfoId' => $getArr['idleInfoId']]);
+        if ($IdleColleData) {
             $IdleColleData->createTime = time();
-        }else{
-            $IdleCollectionModel->create([ 'userId'=>$this->userId,'idleInfoId'=>$getArr['idleInfoId'],'createTime'=>time()]);
+        } else {
+            $IdleCollectionModel->create([ 'userId' => $this->userId,'idleInfoId' => $getArr['idleInfoId'],'createTime' => time()]);
         }
         return show(1);
     }
@@ -537,11 +537,10 @@ class Idle extends Base
         try {
             $idleInfoIdArr = json_decode($getArr['idleInfoIdArr']);
             IdleCollection::destroy([
-                'userId'=>$this->userId,
-                'idleInfoId'=>['in',$idleInfoIdArr],
+                'userId' => $this->userId,
+                'idleInfoId' => ['in',$idleInfoIdArr],
             ]);
         } catch (\Exception $th) {
-           
         }
         return show(1);
     }
@@ -773,8 +772,8 @@ class Idle extends Base
             $pic = '';
         }
         $IdleDealInfo['picArr'] = $pic;
-        $IdleDealInfo['isRefundTime'] = date('Y-m-d H:i:s',$IdleDealInfo['isRefundTime']);
-        $IdleDealInfo['createTime'] = date('Y-m-d H:i:s',$IdleDealInfo['createTime']);
+        $IdleDealInfo['isRefundTime'] = date('Y-m-d H:i:s', $IdleDealInfo['isRefundTime']);
+        $IdleDealInfo['createTime'] = date('Y-m-d H:i:s', $IdleDealInfo['createTime']);
         
          
         return show(1, $IdleDealInfo);
@@ -1059,7 +1058,7 @@ class Idle extends Base
             'idleDealDisputeId' => $dataArr['idleDealDisputeId'],
             'picPath' => $dataArr['picPath'],
             'content' => $dataArr['content'],
-            'isWho' =>$IdleDealDisputeData['iswho'],
+            'isWho' => $IdleDealDisputeData['iswho'],
             'userId' => $this->userId,
             'createTime' => time(),
         ];

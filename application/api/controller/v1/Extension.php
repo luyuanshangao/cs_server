@@ -1012,7 +1012,7 @@ class Extension extends Base
     {
         $ExtensionAssetsModel = new ExtensionAssets();
         $result = $ExtensionAssetsModel->toAssets($this->userId);
-        if($result){
+        if ($result) {
             return show(1);
         }
         return show(0);

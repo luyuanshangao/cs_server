@@ -307,12 +307,12 @@ class Order extends BaseModel
         );
         
         OrderDelayed::delOrderDelayedTask(
-              json_encode([
+            json_encode([
                 'action' => 'send',
                 'time' => ($orderInfo['createTime'] + 1500),
-                'data' => ['userId' => $orderInfo['userId'],'orderSn' =>$orderInfo['orderSn']]
+                'data' => ['userId' => $orderInfo['userId'],'orderSn' => $orderInfo['orderSn']]
               ])
-          );
+        );
          
         Vop::cancelOrder($orderInfo->ylOrderId);
         return true;
@@ -697,7 +697,7 @@ class Order extends BaseModel
                 return false;
             }
            
-            $designData = PriceRule::getIncPrice($price,$this->rate);
+            $designData = PriceRule::getIncPrice($price, $this->rate);
             //转为原价美元
             $oldUsdtPrice =  $designData['oldUsdtPrice'];
             //商品增加百分比

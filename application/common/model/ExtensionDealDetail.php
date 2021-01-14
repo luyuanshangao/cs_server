@@ -48,7 +48,7 @@ class ExtensionDealDetail extends BaseModel
             case 2:
                 $detailsData[] = [
                     'name' => '购物退款',
-                    'amount' =>(string)$data['amount'],
+                    'amount' => (string)$data['amount'],
                     'createTime' => $createTime,
                 ];
                 break;

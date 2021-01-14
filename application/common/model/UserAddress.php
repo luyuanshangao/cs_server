@@ -32,8 +32,8 @@ class UserAddress extends BaseModel
     public static function getDefault($userId)
     {
         return self::get([
-            'userId'=>$userId,
-            'isDefault'=>1,
+            'userId' => $userId,
+            'isDefault' => 1,
         ]);
     }
 

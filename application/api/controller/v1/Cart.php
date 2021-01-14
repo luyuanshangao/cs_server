@@ -183,7 +183,7 @@ class Cart extends Base
             return show(0);
         }
         
-        return show(1, ['count'=>$count]);
+        return show(1, ['count' => $count]);
     }
 
     /**

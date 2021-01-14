@@ -44,46 +44,44 @@ class IdleDeal extends BaseModel
         }
         $order = 'IdleDeal.createTime desc';
         $result = Db::view('IdleDeal', 'idleDealId,IdleInfoId,dealSn,sellUserId,buyUserId,remark,idleInfoId,price,dealStats,logistics,logisticsNum,paySell,payTime,sendTime,trueTime,createTime,idleDealDisputeId')
-                ->view('User', ['userName'=>'suserName','userId'=>'suserId'], 'User.userId=IdleDeal.sellUserId','LEFT')
-                ->view('IdleInfo', 'title,infoSn,picPath,description,price as idlePrice,freightFee,condition', 'IdleInfo.IdleInfoId=IdleDeal.IdleInfoId','LEFT')
-                ->view('UserAddress', 'userName as buyUserName,userPhone,areaName,addressDetails', 'UserAddress.addressId=IdleDeal.addressId','LEFT')
-                ->view('User Buser',['userName'=>'buserName','userId'=>'buserId'], 'Buser.userId=IdleDeal.buyUserId','LEFT')
-                ->view('IdleDealDispute',['disputeSn','fromUserId','toUserId','isWho','disputeType','disputeDescribe','disputeResults','createTime'=>'icreateTime'], 'IdleDeal.idleDealDisputeId=IdleDealDispute.idleDealDisputeId','LEFT')
+                ->view('User', ['userName' => 'suserName','userId' => 'suserId'], 'User.userId=IdleDeal.sellUserId', 'LEFT')
+                ->view('IdleInfo', 'title,infoSn,picPath,description,price as idlePrice,freightFee,condition', 'IdleInfo.IdleInfoId=IdleDeal.IdleInfoId', 'LEFT')
+                ->view('UserAddress', 'userName as buyUserName,userPhone,areaName,addressDetails', 'UserAddress.addressId=IdleDeal.addressId', 'LEFT')
+                ->view('User Buser', ['userName' => 'buserName','userId' => 'buserId'], 'Buser.userId=IdleDeal.buyUserId', 'LEFT')
+                ->view('IdleDealDispute', ['disputeSn','fromUserId','toUserId','isWho','disputeType','disputeDescribe','disputeResults','createTime' => 'icreateTime'], 'IdleDeal.idleDealDisputeId=IdleDealDispute.idleDealDisputeId', 'LEFT')
                 ->where($condition)
                 ->limit($from, $size)
                 ->order($order)
                 ->select();
                 $disputeType = [
-                    1=>'物品未收到 ',
-                    2=>'物品存在问题 ',
-                    3=>'其他 ',
+                    1 => '物品未收到 ',
+                    2 => '物品存在问题 ',
+                    3 => '其他 ',
                 ];
-        foreach ($result as $key => &$value) {
-            try {
-               
-                $pic =  explode(',',$value['picPath']);;
-            } catch (\Throwable $th) {
-                $pic = [];
-            }
-            $value['picPath'] = $pic;
+                foreach ($result as $key => &$value) {
+                    try {
+                        $pic =  explode(',', $value['picPath']);
+                        ;
+                    } catch (\Throwable $th) {
+                        $pic = [];
+                    }
+                    $value['picPath'] = $pic;
             
-            if($value['icreateTime']){
-                ($value['icreateTime'] + 86400) < time() ? $value['disputeText'] = '上传举证中' : $value['disputeText'] = '裁决阶段';
-               
-            }
+                    if ($value['icreateTime']) {
+                        ($value['icreateTime'] + 86400) < time() ? $value['disputeText'] = '上传举证中' : $value['disputeText'] = '裁决阶段';
+                    }
 
-            if($value['isWho']){
-                $value['isWho'] == 'sell' ? $value['iswho'] = '卖家' : $value['iswho'] = '买家';
+                    if ($value['isWho']) {
+                        $value['isWho'] == 'sell' ? $value['iswho'] = '卖家' : $value['iswho'] = '买家';
                
-                $value['fromUserId'] == $value['buyUserId'] ? $value['fuserName'] =  $value['buserName'] : $value['fuserName'] =  $value['suserName'];
-            } 
+                        $value['fromUserId'] == $value['buyUserId'] ? $value['fuserName'] =  $value['buserName'] : $value['fuserName'] =  $value['suserName'];
+                    }
            
-            if($value['disputeType']){
-              $value['disputeTypeName'] = $disputeType[$value['disputeType']];
-            }
-  
-        }
+                    if ($value['disputeType']) {
+                        $value['disputeTypeName'] = $disputeType[$value['disputeType']];
+                    }
+                }
 
-        return $result;
+                return $result;
     }
 }

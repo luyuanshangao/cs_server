@@ -43,8 +43,8 @@ class IdleInfo extends BaseModel
     public function getFrontCodeAttr($value, $data)
     {
         $condition = [
-            'dealStats'=>1,
-            'idleInfoId'=>$data['idleInfoId'],
+            'dealStats' => 1,
+            'idleInfoId' => $data['idleInfoId'],
         ];
         $dealData = IdleDeal::get($condition);
 

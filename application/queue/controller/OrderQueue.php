@@ -350,16 +350,13 @@ class OrderQueue extends Controller
                                         $AssetsModel->addUSDT($data['fromUserId'], $IdleDealInfo['price'] * 4 / 5, "纠纷退款");
                                         $IdleDealInfo->dealStats = 9;
                                         $IdleDealInfo->save();
-                                        IdleDealDispute::update(['isRefund'=>1],['idleDealDisputeId'=> $data['idleDealDisputeId']]);
-                                        
-                                    
-                                    
+                                        IdleDealDispute::update(['isRefund' => 1], ['idleDealDisputeId' => $data['idleDealDisputeId']]);
                                 } else {
                                     #2发起纠纷人败
                                     $AssetsModel->addUSDT($data['toUserId'], $IdleDealInfo['price'] * 4 / 5, "纠纷退款");
                                     $IdleDealInfo->dealStats = 9;
                                     $IdleDealInfo->save();
-                                    IdleDealDispute::update(['isRefund'=>1],['idleDealDisputeId'=> $data['idleDealDisputeId']]);
+                                    IdleDealDispute::update(['isRefund' => 1], ['idleDealDisputeId' => $data['idleDealDisputeId']]);
                                 }
                                 $AssetsModel->commit();
                             } catch (\Exception $th) {

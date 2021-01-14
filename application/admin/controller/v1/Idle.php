@@ -65,7 +65,7 @@ class Idle extends Base
             case isset($data['dealType']) && $data['dealType'] == 4: //已完成
                     $condition['IdleDeal.dealStats'] = 4;
                 break;
-            case isset($data['dealType']) && $data['dealType'] == 5: //已取消 
+            case isset($data['dealType']) && $data['dealType'] == 5: //已取消
                     $condition['IdleDeal.dealStats'] = 6;
                 break;
             case isset($data['dealType']) && $data['dealType'] == 6: //退款订单
@@ -129,7 +129,7 @@ class Idle extends Base
         $dataArr = $this->request->get();
         $IdleDealDisputeEvidence = new IdleDealDisputeEvidence();
         $data  = $IdleDealDisputeEvidence->getViewList(['idleDealDisputeId' => $dataArr['idleDealDisputeId']]);
-        return show(1,$data);
+        return show(1, $data);
     }
    /**
      * @name: 判决
@@ -141,20 +141,20 @@ class Idle extends Base
     public function sellUp()
     {
         $dataArr = $this->request->get();
-        $IdleDealDisputeData = IdleDealDispute::get(['idleDealDisputeId'=>$dataArr['idleDealDisputeId']]);
+        $IdleDealDisputeData = IdleDealDispute::get(['idleDealDisputeId' => $dataArr['idleDealDisputeId']]);
         //$IdleDealData = IdleDeal::get(['idleDealId'=>$IdleDealDisputeData['idleDealId']]);
         #判断谁发起纠纷
-        if($IdleDealDisputeData['isWho'] == 'sell'){
+        if ($IdleDealDisputeData['isWho'] == 'sell') {
             #卖家发起纠纷
             $IdleDealDisputeData->disputeResults = 1;
             $data['disputeResults'] = 1;
             $IdleDealDisputeData->save();
-        }else{
+        } else {
             $IdleDealDisputeData->disputeResults = 2;
             $data['disputeResults'] = 2;
             $IdleDealDisputeData->save();
         }
-        return show(1,$data);
+        return show(1, $data);
     }
    /**
      * @name: 判决
@@ -166,42 +166,42 @@ class Idle extends Base
     public function buyUp()
     {
         $dataArr = $this->request->get();
-        $IdleDealDisputeData = IdleDealDispute::get(['idleDealDisputeId'=>$dataArr['idleDealDisputeId']]);
+        $IdleDealDisputeData = IdleDealDispute::get(['idleDealDisputeId' => $dataArr['idleDealDisputeId']]);
         //$IdleDealData = IdleDeal::get(['idleDealId'=>$IdleDealDisputeData['idleDealId']]);
         #判断谁发起纠纷
-        if($IdleDealDisputeData['isWho'] == 'sell'){
+        if ($IdleDealDisputeData['isWho'] == 'sell') {
             #卖家发起纠纷
             $IdleDealDisputeData->disputeResults = 2;
             $data['disputeResults'] = 2;
             $IdleDealDisputeData->save();
-        }else{
+        } else {
             $IdleDealDisputeData->disputeResults = 1;
             $data['disputeResults'] = 1;
             $IdleDealDisputeData->save();
         }
         
-        return show(1,$data);
+        return show(1, $data);
     }
     /**
      * @name: 获取审核状态
      * @author: gz
-     * @description: 
+     * @description:
      * @param {*}
      * @return {*}
      */
     public function getVerifyStatus()
     {
         $arr = [
-            ['name'=>'未审核','verifyStatus'=>0],
-            ['name'=>'已通过','verifyStatus'=>1],
-            ['name'=>'未通过','verifyStatus'=>2],
+            ['name' => '未审核','verifyStatus' => 0],
+            ['name' => '已通过','verifyStatus' => 1],
+            ['name' => '未通过','verifyStatus' => 2],
         ];
-        return show(1,$arr);
+        return show(1, $arr);
     }
     /**
      * @name: 获取订单状态
      * @author: gz
-     * @description: 
+     * @description:
      * @param {*}
      * @return {*}
      */
@@ -209,18 +209,17 @@ class Idle extends Base
     {
         //0申请退款/1待付款/2待发货/3待收货/4已完成/5纠纷订单/6被取消/7待退款/8退款成功/9纠纷完成
         $arr = [
-            ['name'=>'退款订单','dealStats'=>0],
-            ['name'=>'待付款','dealStats'=>1],
-            ['name'=>'待发货','dealStats'=>2],
-            ['name'=>'待收货','dealStats'=>3],
-            ['name'=>'已完成','dealStats'=>4],
-            ['name'=>'纠纷订单','dealStats'=>5],
-            ['name'=>'已取消','dealStats'=>6],
-            ['name'=>'退款订单','dealStats'=>7],
-            ['name'=>'退款订单','dealStats'=>8],
-            ['name'=>'纠纷订单','dealStats'=>9],
+            ['name' => '退款订单','dealStats' => 0],
+            ['name' => '待付款','dealStats' => 1],
+            ['name' => '待发货','dealStats' => 2],
+            ['name' => '待收货','dealStats' => 3],
+            ['name' => '已完成','dealStats' => 4],
+            ['name' => '纠纷订单','dealStats' => 5],
+            ['name' => '已取消','dealStats' => 6],
+            ['name' => '退款订单','dealStats' => 7],
+            ['name' => '退款订单','dealStats' => 8],
+            ['name' => '纠纷订单','dealStats' => 9],
         ];
-        return show(1,$arr);
+        return show(1, $arr);
     }
-
 }

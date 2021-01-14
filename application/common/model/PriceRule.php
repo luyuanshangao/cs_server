@@ -18,7 +18,8 @@ class PriceRule extends BaseModel
         }
         return $ruleObj->incRate;
     }
-    public static function getIncPrice($price,$rate){
+    public static function getIncPrice($price, $rate)
+    {
         //转为原价美元
         $oldUsdtPrice =  bcdiv($price, $rate, 3);
         //商品增加百分比
@@ -29,10 +30,10 @@ class PriceRule extends BaseModel
         $incPrice = $price * (1 + $percent / 100);
         $usdtPricePercent = ceil($incPrice / $rate * 100) / 100;
         return [
-            'oldUsdtPrice'=>$oldUsdtPrice,
-            'percent'=>$percent,
-            'incPrice'=>$incPrice,
-            'usdtPricePercent'=>$usdtPricePercent,
+            'oldUsdtPrice' => $oldUsdtPrice,
+            'percent' => $percent,
+            'incPrice' => $incPrice,
+            'usdtPricePercent' => $usdtPricePercent,
         ];
     }
 }

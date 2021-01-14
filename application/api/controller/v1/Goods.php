@@ -32,7 +32,7 @@ class Goods extends Base
         $this->getPageAndSize($dataArr);
         isset($dataArr['sort']) ? $sortType = $dataArr['sort'] : $sortType = '';
         isset($dataArr['catId'])  ? $catId = $dataArr['catId'] : $catId = '';
-        isset($dataArr['keyword']) ? $keyword = $dataArr['keyword'] : $keyword = '';    
+        isset($dataArr['keyword']) ? $keyword = $dataArr['keyword'] : $keyword = '';
         $keyword && $catId ? $keyword = '' : '';
         $data = $this->execSearch($keyword, $this->page, $this->size, $sortType, $catId);
         //存储搜索历史
@@ -479,7 +479,7 @@ class Goods extends Base
 
             #预估挖矿
             #获取当前等级
-            $ExtensionUser = ExtensionUser::get(['userId'=>$this->userId]);
+            $ExtensionUser = ExtensionUser::get(['userId' => $this->userId]);
 
 
             switch (true) {
@@ -491,20 +491,20 @@ class Goods extends Base
                     break;
                 case $ExtensionUser['extensionId'] == 2 || $ExtensionUser['extensionId'] == 3 || $ExtensionUser['extensionId'] == 4:
                         # 试用初级 初级推广
-                        $extensionData = Extension::get(['extensionId'=>$ExtensionUser['extensionId']]);
+                        $extensionData = Extension::get(['extensionId' => $ExtensionUser['extensionId']]);
                         $RateModel = new Rate();
                         $rate = $RateModel->getRate();
-                        $designData = PriceRule::getIncPrice($price,$rate);
+                        $designData = PriceRule::getIncPrice($price, $rate);
                         $exDataFirIncome = bcdiv($extensionData['firIncome'], '100', config('app.usdt_float_num'));
                         $syUsdt = $designData['usdtPricePercent'] - $designData['oldUsdtPrice'];
                         $yAmount = bcmul($syUsdt, $exDataFirIncome, config('app.usdt_float_num'));
                     break;
                 case $ExtensionUser['extensionId'] == 5:
                         # 平台分红
-                        $extensionData = Extension::get(['extensionId'=>$ExtensionUser['extensionId']]);
+                        $extensionData = Extension::get(['extensionId' => $ExtensionUser['extensionId']]);
                         $RateModel = new Rate();
                         $rate = $RateModel->getRate();
-                        $designData = PriceRule::getIncPrice($price,$rate);
+                        $designData = PriceRule::getIncPrice($price, $rate);
                         $exDataFirIncome = bcdiv($extensionData['allIncome'], '100', config('app.usdt_float_num'));
                         $syUsdt = $designData['usdtPricePercent'] - $designData['oldUsdtPrice'];
                         $yAmount = bcmul($syUsdt, $exDataFirIncome, config('app.usdt_float_num'));
@@ -516,7 +516,6 @@ class Goods extends Base
             }
             
             $info['yAmount'] = $yAmount;
-
         } catch (\Exception $th) {
             return show(0);
         }
@@ -626,8 +625,8 @@ class Goods extends Base
 
         $dataArr  = $this->checkdate('Goods', 'post', 'getEstimate');
        
-        var_export($dataArr);die;
-        
+        var_export($dataArr);
+        die;
     }
 
 
@@ -776,20 +775,20 @@ class Goods extends Base
     /**
      * @name: 详情 全部返回
      * @author: gz
-     * @description: 
+     * @description:
      * @param {*}
      * @return {*}
      */
-    public function goodsInfo(){
+    public function goodsInfo()
+    {
 
         $dataArr  = $this->checkdate('Goods', 'get', 'getGoodsInfo');
         $skuNum = $dataArr['skuNum'];
         $mis = microtime(true);
         try {
-
             # vop 详情
             $resultInfo  =  Vop::getGoodsInfo($skuNum);
-            if(!$resultInfo){  
+            if (!$resultInfo) {
                 throw new \Exception("no info");
             }
             $resultInfo['param']  = $this->changeParam($resultInfo['param']);
@@ -803,18 +802,17 @@ class Goods extends Base
        
         #获取此人当前默认地址
         $addressData = UserAddress::getDefault($this->userId);
-        if($addressData){  
-
+        if ($addressData) {
             #解析地址Id
             list($provinceId, $cityId, $countyId,$townId) = explode("_", $addressData['areaIdPath']);
 
             #购买限制
             try {
-                $resultAreaLimit = Vop::getGoodsAreaLimit($skuNum, $provinceId, $cityId, $countyId, $townId);   
+                $resultAreaLimit = Vop::getGoodsAreaLimit($skuNum, $provinceId, $cityId, $countyId, $townId);
                 $resultAreaLimit = $resultAreaLimit[0]['isAreaRestrict'];
             } catch (\Exception $th) {
                 $resultAreaLimit = false;
-            } 
+            }
 
             #赠品
             try {
@@ -825,22 +823,21 @@ class Goods extends Base
                     //时间范围内 有赠品
                     foreach ($resultGift['gifts'] as $key => $value) {
                             $info = GoodsInfo::getGoodsInfoBySkuNum($skuNum, ['price','spu_name','pics','sku_num']);
-                            if ($info['pics'] && $info['spu_name']) {
-                                $pics = json_decode($info['pics'], true);
-                                $resultGifts[$key]['pic'] = $pics[0];
-                                $resultGifts[$key]['spu_name'] = $info['spu_name'];
-                            } else {
-                                //$resultInfo = Vop::getGoodsInfo($value['sku_num'], ['spu_name']);
-                                $pics = Vop::getGoodsPic($skuNum);
-                                $picsArr = array_column($pics[$skuNum], 'pic_path');
-                                $resultGifts[$key]['pic'] = $picsArr[0];
-                                $resultGifts[$key]['spu_name'] = $info['spu_name'];
-                            }
+                        if ($info['pics'] && $info['spu_name']) {
+                            $pics = json_decode($info['pics'], true);
+                            $resultGifts[$key]['pic'] = $pics[0];
+                            $resultGifts[$key]['spu_name'] = $info['spu_name'];
+                        } else {
+                            //$resultInfo = Vop::getGoodsInfo($value['sku_num'], ['spu_name']);
+                            $pics = Vop::getGoodsPic($skuNum);
+                            $picsArr = array_column($pics[$skuNum], 'pic_path');
+                            $resultGifts[$key]['pic'] = $picsArr[0];
+                            $resultGifts[$key]['spu_name'] = $info['spu_name'];
+                        }
                         
                             $resultGifts[$key]['num'] = $value['num'];
                             $resultGifts[$key]['giftType'] = $value['giftType'];
                             $resultGifts[$key]['sku_num'] = $value['sku_num'];
-                       
                     }
                 }
             } catch (\Exception $th) {
@@ -851,16 +848,13 @@ class Goods extends Base
             try {
                 $skuJson = json_encode([ ['skuNum' => $skuNum,'num' => 1]]);
                 $resultTimeAndCalendar  =  Vop::getPromiseCalendar($skuJson, $provinceId, $cityId, $countyId, $townId);
-  
-                
             } catch (\Exception $th) {
-                $resultTimeAndCalendar = []; 
-            }    
-                
-        }else{
+                $resultTimeAndCalendar = [];
+            }
+        } else {
             $resultAreaLimit = false;
             $resultGifts = [];
-            $resultTimeAndCalendar = []; 
+            $resultTimeAndCalendar = [];
         }
         
         #同类商品
@@ -912,7 +906,7 @@ class Goods extends Base
 
             #预估挖矿
             #获取当前等级
-            $ExtensionUser = ExtensionUser::get(['userId'=>$this->userId]);
+            $ExtensionUser = ExtensionUser::get(['userId' => $this->userId]);
 
 
             switch (true) {
@@ -924,20 +918,20 @@ class Goods extends Base
                     break;
                 case $ExtensionUser['extensionId'] == 2 || $ExtensionUser['extensionId'] == 3 || $ExtensionUser['extensionId'] == 4:
                         # 试用初级 初级推广
-                        $extensionData = Extension::get(['extensionId'=>$ExtensionUser['extensionId']]);
+                        $extensionData = Extension::get(['extensionId' => $ExtensionUser['extensionId']]);
                         $RateModel = new Rate();
                         $rate = $RateModel->getRate();
-                        $designData = PriceRule::getIncPrice($price,$rate);
+                        $designData = PriceRule::getIncPrice($price, $rate);
                         $exDataFirIncome = bcdiv($extensionData['firIncome'], '100', config('app.usdt_float_num'));
                         $syUsdt = $designData['usdtPricePercent'] - $designData['oldUsdtPrice'];
                         $yAmount = bcmul($syUsdt, $exDataFirIncome, config('app.usdt_float_num'));
                     break;
                 case $ExtensionUser['extensionId'] == 5:
                         # 平台分红
-                        $extensionData = Extension::get(['extensionId'=>$ExtensionUser['extensionId']]);
+                        $extensionData = Extension::get(['extensionId' => $ExtensionUser['extensionId']]);
                         $RateModel = new Rate();
                         $rate = $RateModel->getRate();
-                        $designData = PriceRule::getIncPrice($price,$rate);
+                        $designData = PriceRule::getIncPrice($price, $rate);
                         $exDataFirIncome = bcdiv($extensionData['allIncome'], '100', config('app.usdt_float_num'));
                         $syUsdt = $designData['usdtPricePercent'] - $designData['oldUsdtPrice'];
                         $yAmount = bcmul($syUsdt, $exDataFirIncome, config('app.usdt_float_num'));
@@ -949,23 +943,20 @@ class Goods extends Base
             }
             
             $info['yAmount'] = $yAmount;
-
         } catch (\Exception $th) {
             $info = [];
         }
 
         $returnData = [
-            'resultInfo'=>$resultInfo,
-            'addressInfo'=>$addressData,
-            'resultAreaLimit'=>$resultAreaLimit,
-            'resultGifts'=>$resultGifts,
-            'resultTimeAndCalendar'=>$resultTimeAndCalendar,
-            'resultSimilarSku'=>$resultSimilarSku,
-            'resultSkuInfo'=>$info,
+            'resultInfo' => $resultInfo,
+            'addressInfo' => $addressData,
+            'resultAreaLimit' => $resultAreaLimit,
+            'resultGifts' => $resultGifts,
+            'resultTimeAndCalendar' => $resultTimeAndCalendar,
+            'resultSimilarSku' => $resultSimilarSku,
+            'resultSkuInfo' => $info,
         ];
        
-        return show(1,$returnData);
-  
-        
+        return show(1, $returnData);
     }
 }

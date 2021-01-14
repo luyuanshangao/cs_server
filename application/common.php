@@ -519,4 +519,3 @@ function wordTime($time)
     }
     return $str;
 }
-

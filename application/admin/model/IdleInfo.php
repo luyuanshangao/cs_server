@@ -51,8 +51,8 @@ class IdleInfo extends BaseModel
                 ->select();
         foreach ($result as $key => &$value) {
             try {
-               
-                $pic =  explode(',',$value['picPath']);;
+                $pic =  explode(',', $value['picPath']);
+                ;
             } catch (\Throwable $th) {
                 $pic = [];
             }

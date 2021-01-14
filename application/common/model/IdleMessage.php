@@ -35,24 +35,23 @@ class IdleMessage extends BaseModel
         return $list;
     }
 
-    public static function orderTime($data,$sonList='messageSonList',$order='createTime'){
-        if(count($data) == 0){
+    public static function orderTime($data, $sonList = 'messageSonList', $order = 'createTime')
+    {
+        if (count($data) == 0) {
             return [];
         }
         
         foreach ($data as $key => &$value) {
-           
-            if(count($value[$sonList]) > 0){
+            if (count($value[$sonList]) > 0) {
                 $value['orderTime'] = end($value[$sonList])[$order];
-            }else{
+            } else {
                 $value['orderTime'] = $value[$order];
             }
-            
         }
         
-        $desc = array_column($data,'orderTime');
+        $desc = array_column($data, 'orderTime');
       
-        array_multisort($desc,SORT_DESC,$data);
+        array_multisort($desc, SORT_DESC, $data);
         
         return array_values($data);
     }

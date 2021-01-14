@@ -12,10 +12,11 @@ class Home extends Controller
 
     public function index()
     {
-       vendor("BitcoinLib");
-       $bitcoin = new \BitcoinLib();
-       $response = $bitcoin->loadwallet();
-var_export($response);die;
+        vendor("BitcoinLib");
+        $bitcoin = new \BitcoinLib();
+        $response = $bitcoin->loadwallet();
+        var_export($response);
+        die;
   //    $aa = \
   // var_export($aa);
       //     $GoodsSku = new \app\common\library\redis\GoodsSku;

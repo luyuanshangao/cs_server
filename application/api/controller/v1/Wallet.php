@@ -198,7 +198,6 @@ class Wallet extends Base
         $commission = 0;
         if ($assetsType == "1") {
             $assetsAmount = $this->assets->getBTC($this->userId);
-
         } elseif ($assetsType == "2") {
             $assetsAmount = $this->assets->getETH($this->userId);
         } elseif ($assetsType == "3") {//usdt
@@ -207,7 +206,7 @@ class Wallet extends Base
             $assetsAmount = $this->assets->getUNI($this->userId);
         }
 
-        if (bccomp($assetsAmount,$amount) < 0) {
+        if (bccomp($assetsAmount, $amount) < 0) {
             return show(1027);
         }
         //扣除个人资产金额
