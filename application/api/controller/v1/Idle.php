@@ -491,11 +491,14 @@ class Idle extends Base
         $list = $IdleMessageModel->getList($condition, 0, 5, true, 'createTime desc', ['userName','timeWord','messageSonList']);
         $messages =  IdleMessage::orderTime($list);
 
+        $IdleCollectionModel = new IdleCollection();
+        $IdleColleData = $IdleCollectionModel->get(['userId'=>$this->userId,'idleInfoId'=>$idleInfoId]);
+
         $returnData  = [
             'userData' => $userInfo,
             'idleData' => $idleInfo,
             'messageData' => $messages,
-       
+            'isColle'=> $IdleColleData ? 1 :0
         ];
         
         return show(1, $returnData);
