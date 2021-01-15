@@ -92,8 +92,7 @@ class User extends BaseModel
                 ExtensionInvitation::addInvitation($result->userId, $userArr['superiorId']);
                 Redpacket::addHelp($result->userId, $userArr['superiorId']);
             }
-
-
+            (new Assets)->createWallet($result->userId);
              //注册消息
              Message::add($result->userId, '系统通知', '欢迎加入CoinShop', '欢迎加入CoinShop！我们秉承着为您提供最好的购物体验!');
              $this->commit();

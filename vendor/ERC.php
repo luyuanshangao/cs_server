@@ -18,9 +18,9 @@ class ERC
         $this->erc = new ERC20($this->eth);
 
         // usdt 合约地址
-        $this->contract = "0xdac17f958d2ee523a2206206994597c13d831ec7";
+        $this->contract = "0xdac17f958d2ee523a2206206994597c13d831ec7"; 
     }
-
+    
     public function test() {
         print_r($this->getBalanceOfAddress("0xaffe04e513793c0e45d39ee6632aa1c824a5db55"));
     }

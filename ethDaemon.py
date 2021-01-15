@@ -47,13 +47,13 @@ elif cli == "run":
                          "params": [address, "latest"], "id": 1}
             balance = send("http://127.0.0.1:10123",
                            json.dumps(post_data)).json()
-
+           
             if "error" in balance.keys():
                 continue
 
             amount = balance["result"]
             amount = int(amount, 16)
-
+           
             if amount > 0:
                 fp = open("/root/eth.log", "a")
                 fp.write(address + "\n")

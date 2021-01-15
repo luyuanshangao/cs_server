@@ -205,9 +205,9 @@ class Extension extends Base
                     $beginTimeStr = mktime(0, 0, 0, date('m'), date('d') - date('w') + 1, date('y'));
                     $endTimeStr = time();
                 break;
-            case 3://上月
-                    $beginTimeStr = mktime(0, 0, 0, date("m") - 1, 1, date("Y"));
-                    $endTimeStr = mktime(23, 59, 59, date("m"), 0, date("Y"));
+            case 3://本月
+                    $beginTimeStr = mktime(0, 0, 0, date("m"), 1, date("Y"));
+                    $endTimeStr = mktime(23, 59, 59, date("m"), date('t'), date("Y"));
                 break;
 
             

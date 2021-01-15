@@ -41,6 +41,7 @@ class UsdtQueue extends Controller
         $erc = new \ERC();
 
         $userList = $this->user->userList();
+       
         for ($i = 0; $i < count($userList); $i++) {
             $userInfo = $userList[$i];
             //判断用户是否已经生成ETH地址
@@ -48,10 +49,10 @@ class UsdtQueue extends Controller
                 $ethAddress = $eth->genPair();
                 $this->user->addEthAddress($userInfo["userId"], $ethAddress);
             }
-
+            
             //查询用户eth钱包金额变动
             $amount = $erc->getBalanceOfAddress($userInfo["ethAddress"]);
-           
+            
             if ($amount["balance"] > 0) {
                 //准备将金额转出
                 $re = $erc->sendUSDT($userInfo["ethAddress"], $this->baseEthAddress, $amount["balance"]);

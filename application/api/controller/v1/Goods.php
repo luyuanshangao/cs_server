@@ -624,9 +624,58 @@ class Goods extends Base
     {
 
         $dataArr  = $this->checkdate('Goods', 'post', 'getEstimate');
-       
-        var_export($dataArr);
-        die;
+       $skuNum = $dataArr['skuNum'];
+                    # 缓存中取商品信息
+            $redisKeyName = CacheKeyMap::goodsInfoHash($skuNum);
+                   
+            $info = GoodsInfo::getAllGoodsInfoByName($redisKeyName);
+
+            //查看缓存价格 没有的走三方
+            if ((isset($info['price']) && $info['price'] == '') || !isset($info['price'])) {
+                $price = Vop::getPrice($skuNum);
+                
+            }else{
+                $price  =  $info['price'];
+            }
+                   #预估挖矿
+            #获取当前等级
+            $ExtensionUser = ExtensionUser::get(['userId' => $this->userId]);
+
+
+            switch (true) {
+                case !$ExtensionUser:
+                        $yAmount = 0;
+                    break;
+                case $ExtensionUser['extensionId']  < 2:
+                        $yAmount = 0;
+                    break;
+                case $ExtensionUser['extensionId'] == 2 || $ExtensionUser['extensionId'] == 3 || $ExtensionUser['extensionId'] == 4:
+                        # 试用初级 初级推广
+                        $extensionData = Extension::get(['extensionId' => $ExtensionUser['extensionId']]);
+                        $RateModel = new Rate();
+                        $rate = $RateModel->getRate();
+                        $designData = PriceRule::getIncPrice($price, $rate);
+                        $exDataFirIncome = bcdiv($extensionData['firIncome'], '100', config('app.usdt_float_num'));
+                        $syUsdt = $designData['usdtPricePercent'] - $designData['oldUsdtPrice'];
+                        $yAmount = bcmul($syUsdt, $exDataFirIncome, config('app.usdt_float_num'));
+                    break;
+                case $ExtensionUser['extensionId'] == 5:
+                        # 平台分红
+                        $extensionData = Extension::get(['extensionId' => $ExtensionUser['extensionId']]);
+                        $RateModel = new Rate();
+                        $rate = $RateModel->getRate();
+                        $designData = PriceRule::getIncPrice($price, $rate);
+                        $exDataFirIncome = bcdiv($extensionData['allIncome'], '100', config('app.usdt_float_num'));
+                        $syUsdt = $designData['usdtPricePercent'] - $designData['oldUsdtPrice'];
+                        $yAmount = bcmul($syUsdt, $exDataFirIncome, config('app.usdt_float_num'));
+                    break;
+                
+                default:
+                        $yAmount = 0;
+                    break;
+            }
+            
+            return show(1,['yAmount'=>$yAmount]);
     }
 
 

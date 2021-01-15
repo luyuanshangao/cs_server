@@ -15,7 +15,7 @@ class Msg_Process
     {
         try {
            
-            for ($i = 0; $i < 3; $i++) {
+            for ($i = 0; $i < 2; $i++) {
              
                 $process = new Process(function () {
                     define('IS_CLI', false);
@@ -40,7 +40,7 @@ class Msg_Process
     {
         try {
            
-            for ($i = 0; $i < 5; $i++) {
+            for ($i = 0; $i < 2; $i++) {
              
                 $process = new Process(function ()  {
                     define('IS_CLI', false);

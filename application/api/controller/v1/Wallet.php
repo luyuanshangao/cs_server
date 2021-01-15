@@ -64,7 +64,7 @@ class Wallet extends Base
                     $usdt = $this->assets->getUSDT($this->userId);
                     $v["amount"] = bcmul('1', $usdt, config('app.usdt_float_num'));
                     $v["rateUSD"] = $v["amount"];
-                    $v['recAddress'] = '';
+                    $v['recAddress'] =  $this->clientInfo->ethAddress;
                     break;
                 case "ETH":
                     $eth = $this->assets->getETH($this->userId);
@@ -78,7 +78,7 @@ class Wallet extends Base
                     $v["amount"] = bcmul('1', $uniswap, config('app.uni_float_num'));
                     $rateUSD = $binance->UNI2USDT($v["amount"]);
                     $v["rateUSD"] = bcmul('1', $rateUSD, config('app.usdt_float_num'));
-                    $v['recAddress'] = '';
+                    $v['recAddress'] =  $this->clientInfo->ethAddress;
                     break;
                 default:
             }

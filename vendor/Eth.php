@@ -28,6 +28,12 @@ class Eth
         return array('balance'=>$eth);
     }
 
+    function eth_syncing(){
+        $eth_hex = $this->eth->eth_syncing();
+        
+        return $eth_hex;
+    }
+
     function eth_accounts()
     {
         $eth_hex = $this->eth->eth_accounts();
