@@ -37,6 +37,9 @@ class Register extends Controller
             }
             $dataArr['superiorId'] = $superiorUser->userId;
         }
+                     //邀请信息
+   
+
         $resuleAddUser = $UserModel->addUser($dataArr);
 
         if (!$resuleAddUser) {

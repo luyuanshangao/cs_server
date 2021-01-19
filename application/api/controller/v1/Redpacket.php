@@ -2,15 +2,47 @@
 
 namespace app\api\controller\v1;
 
+use app\admin\model\User;
 use app\api\controller\Base;
+use app\common\model\Assets;
 use app\common\model\Redpacket as RedpacketModel;
 use app\common\model\RedpacketHelp;
 use app\common\model\RedpacketCash;
+use think\Cache;
 
 class Redpacket extends Base
 {
-    protected $noAuthArr = [];  //用户登录接口白名单
+    protected $noAuthArr = ['index'];  //用户登录接口白名单
     protected $noSignArr = [];  //接口Sign验证白名单
+
+   
+    public function index(){
+       
+        // $helpVerifyData = Cache::get('helpVerify_'.'18378');
+        // var_export($helpVerifyData);die;
+    }
+    /**
+     * @name: 红包信息
+     * @author: gz
+     * @description: 
+     * @param {*}
+     * @return {*}
+     */
+    public function info(){
+        $helpVerifyData = Cache::get('helpVerify_'.$this->userId);
+        if(!$helpVerifyData){
+            $isHelp = 0;
+            $userName = '';
+        }else{
+            $isHelp = 1;
+            $toHelpUserId = $helpVerifyData['tohelp'];
+            $userName = User::where(['userId'=>$toHelpUserId])->value('userName');
+        }
+        return show(1,[
+            'isHelp'=>$isHelp,
+            'userName'=>$userName,
+        ]);
+    }     
 
     /**
      * @name: 开红包
@@ -134,11 +166,89 @@ class Redpacket extends Base
             return show(0);
         }
         
+
+        #助力验证
+        $helpVerifyData = Cache::get('helpVerify_'.$this->userId);
         return show(1, [
             'assetsType' => $assetsType,
             'amount' => $firstMoney,
-            'speed' => $firstBoostNum / $startBoost
+            'speed' => $firstBoostNum / $startBoost,
+            'helpVerifyData' => $helpVerifyData? $helpVerifyData : [],
         ]);
+    }
+
+    /**
+     * @name: 验证助记词
+     * @author: gz
+     * @description: 
+     * @param {*}
+     * @return {*}
+     */
+    public function verifyWaWord(){
+        
+        $waWord = $this->request->post('waWord');
+      
+        try {
+            $waWord = json_decode($waWord,true);
+            if(!$waWord || !is_array($waWord) || count($waWord) !== 2){
+                throw new \Exception("Error");
+                
+            }
+        } catch (\Exception $th) {
+            return show(0000);
+        }
+   
+        #验证
+        $helpVerifyData = Cache::get('helpVerify_'.$this->userId);
+       
+        if(!$helpVerifyData){
+            return show(1070);
+        }
+        if($helpVerifyData['verifyWordFreq'] == 0){
+            return show(1071);
+        }
+
+        #判断被助力人红包是否有效
+        $dataRedpacket = RedpacketModel::where(['userId'=>$helpVerifyData['tohelp']])->order('createTime desc')->find();
+        if (!$dataRedpacket) {
+            return show(1072);
+        }
+       
+     
+        list($first,$secend) = $helpVerifyData['verifyWord'];
+       
+        $walletWordsArr = json_encode([$first=>$waWord[0],$secend=>$waWord[1]]);
+        $userObj = $this->clientInfo;
+        $walletWordsStr = $userObj->walletWords; 
+        $resultCheck = $this->checkWalletArr($walletWordsStr,$walletWordsArr);
+        
+        if($resultCheck){
+
+            #验证结果保存
+            $helpVerifyData['verifyWordResult'] = 1;
+            #通过被助力userId 查找其是否含有助力验证 
+            $topHelpVerifyData = Cache::get('helpVerify_'.$helpVerifyData['tohelp']);
+            if(!$topHelpVerifyData || $topHelpVerifyData['verifyType'] == 1){
+                RedpacketModel::addHelp($this->userId, $helpVerifyData['tohelp']);
+            }
+            
+            #助力
+            RedpacketHelp::isAgainHelp($topHelpVerifyData,$helpVerifyData);
+            
+           
+        }else{
+            $helpVerifyData['verifyWordFreq'] -= 1;
+        }
+        $expire = $dataRedpacket['expireTime'] - time();
+        if($expire > 0){
+            Cache::set('helpVerify_'.$this->userId,$helpVerifyData,$expire);
+        }
+
+        return show(1,[
+            'resultCheck'=>$resultCheck,
+            'verifyWordFreq'=> $helpVerifyData['verifyWordFreq'],
+        ]);
+        
     }
 
     /**
@@ -235,8 +345,13 @@ class Redpacket extends Base
      */
     public function cash()
     {
-        RedpacketModel::cashAmount($this->userId);
-        return show(1);
+        #判断钱包是否有充值
+        $assetsDatas = Assets::where(['amount'=>['gt',0]])->find();
+        if($assetsDatas){
+            RedpacketModel::cashAmount($this->userId);
+            return show(1);
+        }
+        return show(1073);
     }
 
     /**
