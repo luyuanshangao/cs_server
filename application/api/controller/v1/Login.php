@@ -403,6 +403,6 @@ class Login extends Base
      */
     public function logip()
     {
-        return show(1, config("app.need_access_login"));
+        return show(1, 0);
     }
 }

@@ -334,7 +334,8 @@ class Extension extends Base
             'isExtension' => $isExtension,
             'extensionName' => ExtensionUser::extensionName($this->userId),
             'speed' => 1,
-            'extensionId' => 1,
+            'diff'=>'',
+            'extensionId' => 0,
             'amount' => 0,
             'alowAmount' => 0,
             'lockAmount' => 0,
@@ -342,6 +343,7 @@ class Extension extends Base
                 'amount' => '',
                 'assetsType' => '',
             ],
+
         ];
 
 
@@ -358,64 +360,110 @@ class Extension extends Base
             //显示区分
             switch ($extensionId) {
                 case 0:
+                        $returnData['diff'] = '';
                 case 1:
+                        //查看已邀请人数
+                        $conditionDire = [
+                            'superiorId' => $this->userId,
+                        ];
+                        $directCount = ExtensionInvitation::where($conditionDire)->count();
+                        $returnData['diff'] = 10 - $directCount;
+                    break;
                 case 2:
+                        //成交人数
+                        $conditionDire = [
+                            'superiorId' => $this->userId,
+                        ];
+                        
+                        $dealCount = ExtensionDeal::where($conditionDire)->count();
+                        $returnData['diff'] = 10 - $dealCount;
                 case 3:
+                        //10 个初级
+                        $conditionDire = [
+                            'superiorId' => $this->userId,
+                        ];
+                        $directUserIds = ExtensionInvitation::where($conditionDire)->column('userId');
+                        $conditionPrimary = [
+                            'extensionId' => 3,
+                            'userId' => ['in', $directUserIds],
+                        ];
+                        $primaryNum = ExtensionUser::where($conditionPrimary)->count();
+                        $returnData['diff'] = 10 - $primaryNum;
+
                 case 4:
                     $returnData['amount'] = $amountInfo['amount'];
                     $returnData['alowAmount'] = $amountInfo['alowAmount'];
                     $returnData['lockAmount'] = $amountInfo['lockAmount'];
+                        //10 个高级
+                        $conditionDire = [
+                            'superiorId' => $this->userId,
+                        ];
+                        $directUserIds = ExtensionInvitation::where($conditionDire)->column('userId');
+                    $conditionSenior = [
+                        'extensionId' => 4,
+                        'userId' => ['in', $directUserIds],
+                    ];
+                    $seniorNum = ExtensionUser::where($conditionSenior)->count();
+                    $returnData['diff'] = 10 - $seniorNum;
                     break;
                 case 5: //荣耀值
                     $returnData['amount'] = $amountInfo['amount']; //bcmul($amountInfo['amount'], '100', config('app.usdt_float_num'));
                     $returnData['alowAmount'] = bcmul($amountInfo['alowAmount'], '100'); //荣耀值
                     $returnData['lockAmount'] = $amountInfo['lockAmount']; // bcmul($amountInfo['lockAmount'], '100', config('app.usdt_float_num'));
+                    $returnData['diff'] = '';
                     break;
 
                 default:
                     break;
             }
 
+            $returnData['reward'] = [
+                'amount'=>0,
+                'assetsType'=>'',
+                'alert'=>0
+            ];
             //等级奖励
-            // if ($extensionId == 4) {
-            //     $rewardAmount = 1; //奖励金额
-            //     $assetsType = 2;   //奖励金额类型
+            if ($extensionId == 4) {
+                $rewardAmount = 1; //奖励金额
+                $assetsType = 2;   //奖励金额类型
 
-            //     $dataExt = AssetsDetails::get([
-            //         'userId' => $this->userId,
-            //         'assetsType' => $assetsType, //eth
-            //         'detailType' => 1,
-            //         'amount' => $rewardAmount,
-            //         'description' => '等级奖励',
-            //     ]);
-            //     if (!$dataExt) {
-            //         //第一次 给予奖励 1ETH
-            //         $AssetsModel = new  Assets();
-            //         $AssetsModel->addETH($this->userId, $rewardAmount, '等级奖励');
-            //         $returnData['reward']['amount'] = $rewardAmount;
-            //         $returnData['reward']['assetsType'] = $assetsType;
-            //     }
-            // }
+                $dataExt = AssetsDetails::get([
+                    'userId' => $this->userId,
+                    'assetsType' => $assetsType, //eth
+                    'detailType' => 1,
+                    'amount' => $rewardAmount,
+                    'description' => '等级奖励',
+                ]);
+                if (!$dataExt) {
+                    //第一次 给予奖励 1ETH
+                    $AssetsModel = new  Assets();
+                    $AssetsModel->addETH($this->userId, $rewardAmount, '等级奖励');
+                    $returnData['reward']['amount'] = $rewardAmount;
+                    $returnData['reward']['assetsType'] = $assetsType;
+                    $returnData['reward']['alert'] = 1;
+                }
+            }elseif ($extensionId == 5) {
+                $rewardAmount = 1; //奖励金额
+                $assetsType = 1;   //奖励金额类型
 
-            // if ($extensionId == 5) {
-            //     $rewardAmount = 1; //奖励金额
-            //     $assetsType = 1;   //奖励金额类型
-
-            //     $dataExt = AssetsDetails::get([
-            //         'userId' => $this->userId,
-            //         'assetsType' => $assetsType, //btc
-            //         'detailType' => 1,
-            //         'amount' => $rewardAmount,
-            //         'description' => '等级奖励',
-            //     ]);
-            //     if (!$dataExt) {
-            //         //第一次 给予奖励 1BTC
-            //         $AssetsModel = new  Assets();
-            //         $AssetsModel->addBTC($this->userId, $rewardAmount, '等级奖励');
-            //         $returnData['reward']['amount'] = $rewardAmount;
-            //         $returnData['reward']['assetsType'] = $assetsType;
-            //     }
-            // }
+                $dataExt = AssetsDetails::get([
+                    'userId' => $this->userId,
+                    'assetsType' => $assetsType, //btc
+                    'detailType' => 1,
+                    'amount' => $rewardAmount,
+                    'description' => '等级奖励',
+                ]);
+                $returnData['reward']['amount'] = $rewardAmount;
+                $returnData['reward']['assetsType'] = $assetsType;
+                if (!$dataExt) {
+                    //第一次 给予奖励 1BTC
+                    $AssetsModel = new  Assets();
+                    $AssetsModel->addBTC($this->userId, $rewardAmount, '等级奖励');
+                    $returnData['reward']['amount'] = $rewardAmount;
+                    $returnData['reward']['assetsType'] = $assetsType;
+                    $returnData['reward']['alert'] = 1;
+                }
+            }
         }
 
         return show(1, $returnData);
@@ -473,7 +521,7 @@ class Extension extends Base
                 break;
             case 2:
                 # 试用初级 2    下一级需邀请10人 成交10人
-
+                
                 //成交
                 $upgrade = $this->cumputeUpgrade($dealNum);
 

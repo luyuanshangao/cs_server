@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3a25a2d819be864ec1843744bd7aacb2",
+    "content-hash": "4fa79e03794fb0b8064a3e076b98bb0e",
     "packages": [
         {
             "name": "cydrickn/number",
