@@ -12,29 +12,30 @@ class Home extends Controller
 
     public function index()
     {
-        vendor("Eth");
-        $eth = new \Eth();
-
-        var_export($eth->eth_syncing()); 
-        var_export($eth->getBalanceOfAddress("0xd4181a1ac9af268fab8a9c212598e3d459a84831")); 
-        vendor("ERC");
-        $erc = new \ERC();
-        //查询用户eth钱包金额变动
-        $amount1 = $erc->getBalanceOfAddress('0xd4181a1ac9af268fab8a9c212598e3d459a84831');
-        var_export($amount1);die();
   
+        $geth = new \EthereumRPC\EthereumRPC('127.0.0.1', 10123);
+        $erc20 = new \ERC20\ERC20($geth);
+        $token = $erc20->token('0xdac17f958d2ee523a2206206994597c13d831ec7');
+      
+        var_dump($token->name());
+        var_dump($token->decimals());
+        var_dump($token->symbol());
+        var_dump($token->balanceOf('0xc121162bcca875b95f0398d14fd61166f1688f52')); 
+        die();
+        
+        // vendor("Eth");
         // $eth = new \Eth();
         // $amount1 = $eth->getBalanceOfAddress('0x62f422C23565eF5bDbaB6AF88ee9809835dc6AD1');
         // $amount = $eth->getBalanceOfAddress('0xc121162bcca875b95f0398d14fd61166f1688f52');
         // var_export($amount1);
         // var_export($amount);
         // die;
+    
         // vendor("BitcoinLib");
         // $bitcoin = new \BitcoinLib();
         // $response = $bitcoin->loadwallet();
         // var_export($response);
         // die;
-  
     }
 
   /**
