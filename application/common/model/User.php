@@ -31,28 +31,28 @@ class User extends BaseModel
             $btcAddress = '';
             $ethAddress = '';
             //生成钱包收款地址
-            vendor("BitcoinLib");
-            $bitcoin = new \BitcoinLib();
-            $response = $bitcoin->makeAddress();
+            // vendor("BitcoinLib");
+            // $bitcoin = new \BitcoinLib();
+            // $response = $bitcoin->makeAddress();
          
-            if ($response === false) {
-                throw new \Exception("Error");
-            }
-            if (!$response["error"]) {
-                $btcAddress = $response["result"];
-            } else {
-                throw new \Exception("Error");
-            }
-            if (!$btcAddress) {
-                throw new \Exception("Error");
-            }
-            vendor("Eth");
-            $eth = new \Eth();
-            $ethAddress = $eth->genPair();
+            // if ($response === false) {
+            //     throw new \Exception("Error");
+            // }
+            // if (!$response["error"]) {
+            //     $btcAddress = $response["result"];
+            // } else {
+            //     throw new \Exception("Error");
+            // }
+            // if (!$btcAddress) {
+            //     throw new \Exception("Error");
+            // }
+            // vendor("Eth");
+            // $eth = new \Eth();
+            // $ethAddress = $eth->genPair();
            
-            if (!$ethAddress) {
-                throw new \Exception("Error");
-            }
+            // if (!$ethAddress) {
+            //     throw new \Exception("Error");
+            // }
             
             //user表数据
             $ip = Request::instance()->ip();
@@ -89,8 +89,13 @@ class User extends BaseModel
              UserCumulative::create(['userId' => $result->userId]);
              //邀请信息
             if (isset($userArr['superiorId'])) {
+                //邀请
                 ExtensionInvitation::addInvitation($result->userId, $userArr['superiorId']);
-                Redpacket::addHelp($result->userId, $userArr['superiorId']);
+
+                //添加红包助力验证
+                
+                RedpacketHelp::addHelpVerify($result->userId,$userArr['superiorId']);
+               
             }
             (new Assets)->createWallet($result->userId);
              //注册消息

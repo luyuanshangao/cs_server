@@ -224,27 +224,7 @@ class Login extends Base
         return show(1);
     }
 
-    /**
-     * @name:
-     * @author: gz
-     * @description:
-     * @param {type}
-     * @return:
-     */
-    private function checkWalletArr($walletWordsStr, $walletWordsArr)
-    {
 
-        $walletArr  = json_decode($walletWordsArr, true);
-        $walletWordsArr = explode(' ', $walletWordsStr);
-
-        foreach ($walletArr as $key => $value) {
-            $index = $key - 1;
-            if ($walletWordsArr[$index] !== $value) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * @name: 开启手势密码

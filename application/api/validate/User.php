@@ -27,7 +27,7 @@ class User extends \think\Validate
         ['type','require|chs', '类型必须|类型错误'],
         ['sex','require|length:1,50', '性别不能为空|性别长度必须在0-50之间'],
         ['birthday','require|length:1,50', '生日不能为空|生日长度必须在0-50之间'],
-        ['incode','number|length:10', '邀请码错误|邀请码错误'],
+        ['incode','number|length:6', '邀请码错误|邀请码错误'],
         ['questionId','require|array|checkQuestionId', '问题必须|问题错误|问题错误'],
         ['answer','require|array|checkAnswer', '答案必须填写|答案错误|答案错误'],
         ['checkWalletWords','require|checkWalletWords', '助记词必须填写|助记词错误'],

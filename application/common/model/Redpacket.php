@@ -4,6 +4,11 @@ namespace app\common\model;
 
 class Redpacket extends BaseModel
 {
+
+
+   
+
+
     /**
      * @name: 添加红包
      * @author: gz
@@ -119,6 +124,12 @@ class Redpacket extends BaseModel
             
             
             //查找助力
+            $RedpacketHelpData = RedpacketHelp::get([ 'userId' => $userId,
+            'helpUserId' => $helpUserId]);
+            if($RedpacketHelpData){
+                return;
+            }
+
             $createData = [
                 'userId' => $userId,
                 'helpUserId' => $helpUserId,
@@ -128,8 +139,9 @@ class Redpacket extends BaseModel
             ];
            
             RedpacketHelp::create($createData);
+            return true;
         } catch (\Exception $e) {
-            return;
+            return false;
         }
     }
 }

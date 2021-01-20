@@ -25,17 +25,6 @@ class Home extends Controller
         
         // vendor("Eth");
         // $eth = new \Eth();
-
-        // var_export($eth->eth_syncing());
-        //vendor("ERC");
-        // $erc = new \ERC();
-        // //查询用户eth钱包金额变动
-        // $amount1 = $erc->getBalanceOfAddress('0x62f422C23565eF5bDbaB6AF88ee9809835dc6AD1');
-        // $amount = $erc->getBalanceOfAddress('0xc121162bcca875b95f0398d14fd61166f1688f52');
-        // var_export($amount1);
-        // var_export($amount);
-  
-        // $eth = new \Eth();
         // $amount1 = $eth->getBalanceOfAddress('0x62f422C23565eF5bDbaB6AF88ee9809835dc6AD1');
         // $amount = $eth->getBalanceOfAddress('0xc121162bcca875b95f0398d14fd61166f1688f52');
         // var_export($amount1);

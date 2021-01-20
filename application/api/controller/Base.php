@@ -254,4 +254,20 @@ class Base extends Controller
             $price = ceil($price * (1 + $percent / 100) * 100) / 100;
             return $price;
     }
+
+
+    public function checkWalletArr($walletWordsStr, $walletWordsArr)
+    {
+        
+        $walletArr  = json_decode($walletWordsArr, true);
+        $walletWordsArr = explode(' ', $walletWordsStr);
+        
+        foreach ($walletArr as $key => $value) {
+            $index = $key -1;
+            if ($walletWordsArr[$index] !== $value) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

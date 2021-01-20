@@ -74,7 +74,7 @@ class Eth
         $data["gas"] = "0x" . dechex(21000);
         $data["gasPrice"] = "0x". dechex(3 * 1000000000);
 
-        $resposne = $this->eth->request("personal_sendTransaction", array($data, "coinbuy"));
+        $resposne = $this->eth->request("personal_sendTransaction", array($data, "coinshop"));
 
         // $resposne = $this->eth->eth_sendTransaction($data);
         return $resposne;
@@ -90,7 +90,7 @@ class Eth
     */
     function genPair()
     {
-        $response = $this->eth->request("personal_newAccount", array("coinbuy"));
+        $response = $this->eth->request("personal_newAccount", array("coinshop"));
         $ethAddress = json_decode(json_encode($response),true)["result"];
         return $ethAddress;
     }
