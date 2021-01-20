@@ -356,17 +356,17 @@ class Extension extends Base
             $amountInfo = ExtensionAssets::getAmountInfo($this->userId);
             $extensionId = ExtensionUserLog::getNowGrade($this->userId);
             $returnData['extensionId'] = $extensionId;
-
+            $conditionDire = [
+                'superiorId' => $this->userId,
+            ];
+            $directCount = ExtensionInvitation::where($conditionDire)->count();
+            $returnData['directCount'] = $directCount;
             //显示区分
             switch ($extensionId) {
                 case 0:
                         $returnData['diff'] = '';
                 case 1:
                         //查看已邀请人数
-                        $conditionDire = [
-                            'superiorId' => $this->userId,
-                        ];
-                        $directCount = ExtensionInvitation::where($conditionDire)->count();
                         $returnData['diff'] = 10 - $directCount;
                     break;
                 case 2:
@@ -408,7 +408,8 @@ class Extension extends Base
                     break;
                 case 5: //荣耀值
                     $returnData['amount'] = $amountInfo['amount']; //bcmul($amountInfo['amount'], '100', config('app.usdt_float_num'));
-                    $returnData['alowAmount'] = bcmul($amountInfo['alowAmount'], '100'); //荣耀值
+                    //$returnData['alowAmount'] = bcmul($amountInfo['alowAmount'], '100'); //荣耀值
+                    $returnData['alowAmount'] = $amountInfo['alowAmount'];
                     $returnData['lockAmount'] = $amountInfo['lockAmount']; // bcmul($amountInfo['lockAmount'], '100', config('app.usdt_float_num'));
                     $returnData['diff'] = '';
                     break;
