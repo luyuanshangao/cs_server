@@ -258,12 +258,12 @@ class Base extends Controller
 
     public function checkWalletArr($walletWordsStr, $walletWordsArr)
     {
-
+        
         $walletArr  = json_decode($walletWordsArr, true);
         $walletWordsArr = explode(' ', $walletWordsStr);
-
+        
         foreach ($walletArr as $key => $value) {
-            $index = $key - 1;
+            $index = $key -1;
             if ($walletWordsArr[$index] !== $value) {
                 return false;
             }

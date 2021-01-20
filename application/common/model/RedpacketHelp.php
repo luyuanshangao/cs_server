@@ -139,7 +139,8 @@ class RedpacketHelp extends BaseModel
         list($dataRedpacket , $countHelpNum) = $checkResult;
 
         #判断剩余助力人数 小于10   验证类型
-        if( ($dataRedpacket['num'] -$countHelpNum) <= 10 ){
+
+        if( ($dataRedpacket['num'] - $countHelpNum) <= 10 ){
             # 多邀请验证+助记词验证
             $verifyType = 2;
             $intvNum = 1;
@@ -148,11 +149,11 @@ class RedpacketHelp extends BaseModel
             $verifyType = 1;
             $intvNum = 0;
         }
-
+    
         # 要验证的助记词
-        $firstWord = random_int(0,11);
+        $firstWord = random_int(1,12);
         do {
-            $secendWord = random_int(0,11);
+            $secendWord = random_int(1,12);
         } while ($secendWord == $firstWord);
         #要验证的第几个助记词
         $verifyWord = [$firstWord,$secendWord];
