@@ -80,11 +80,11 @@ class RedpacketHelp extends BaseModel
      */
     public static function isAgainHelp($topData,$endData){
   
-         
-         if($topData['verifyWordResult'] !== 1){
+        
+         if(!$topData || $topData['verifyWordResult'] !== 1){
             return false;
          }
-         
+        
          #上一层助力是否需要进行邀请验证
          if($topData['verifyType'] !== 2){
             return false;
@@ -133,11 +133,12 @@ class RedpacketHelp extends BaseModel
        
 
         $checkResult = self::checkEffec($userId);
+        
         if(!$checkResult){
             return false;
         }
         list($dataRedpacket , $countHelpNum) = $checkResult;
-
+        
         #判断剩余助力人数 小于10   验证类型
 
         if( ($dataRedpacket['num'] - $countHelpNum) <= 10 ){
