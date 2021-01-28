@@ -68,7 +68,7 @@ class Idle extends Base
 
 ###############################################################################################
     /**
-     * @name: 创建闲置信息
+     * @name: 创建商品信息
      * @author: gz
      * @description:
      * @param {*}
@@ -77,7 +77,32 @@ class Idle extends Base
     public function createIdle()
     {
 
+        // $sku = [
+        //     [
+        //         'price'=>'11',
+        //         'stock'=>'11',
+        //         'freight'=>'11',
+        //         'sp_data'=>[
+        //             ['key'=>'规格一','value'=>'红色'],
+        //         ],
+                
+            
+        //     ],
+        //     [
+        //         'price'=>'12',
+        //         'stock'=>'12',
+        //         'freight'=>'13',
+        //         'sp_data'=>[
+        //             ['key'=>'规格一','value'=>'绿色'],
+        //         ],
+                
+            
+        //     ],
+            
+        // ];
+       
         $dataArr  = $this->checkdate('Idle', 'post', 'createIdle');
+        var_export($dataArr);die;
         $result = IdleInfo::addInfo($this->userId, $dataArr);
         if (!$result) {
             return show(0);

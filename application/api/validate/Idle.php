@@ -9,6 +9,8 @@ class Idle extends \think\Validate
         ['page','number', '页数为数字'],
         ['size','number', '页数大小为数字'],
         ['keyword','max:20', '搜索内容过长'],
+
+        ['skuData','require', '规格必须'],
         ['type','require|in:1,2,3,4', '类型必须|类型错误'],
         ['title','require|max:60|min:5', '标题必须|标题过长|标题过短'],
         ['description','require|max:300|min:5', '标题必须|标题过长|标题过短'],
@@ -42,7 +44,7 @@ class Idle extends \think\Validate
     //场景不同场景验证不同的字段
     protected $scene = [
         'list' => ['page','size','search'],
-        'createIdle' => ['title','description','price','condition','picPath'],
+        'createIdle' => ['title','description','skuData','picPath'],
         'cacalIdle' => ['infoSn'],
         'idleListsInfo' => ['page','size','type'],
         'editIdleInfo' => ['title','description','price','condition','picPath','idleInfoId'],
