@@ -383,6 +383,6 @@ class Login extends Base
      */
     public function logip()
     {
-        return show(1, 0);
+        return show(1, config('app.need_access_login'));
     }
 }

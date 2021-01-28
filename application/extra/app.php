@@ -13,5 +13,5 @@ return [
     'btc_float_num' => '6',// btc保留小数位数
     'eth_float_num' => '5',// eth保留小数位数
     'uni_float_num' => '4',// uni保留小数位数
-    'need_access_login' => 1      //账号密码登录
+    'need_access_login' => 1      //0账号密码登录 1助记词登录 
 ];

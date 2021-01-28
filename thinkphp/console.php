@@ -14,7 +14,7 @@ namespace think;
 // ThinkPHP 引导文件
 // 加载基础文件
 require __DIR__ . '/base.php';
-
+define('IS_CLI', false);
 // 执行应用
 App::initCommon();
 Console::init();

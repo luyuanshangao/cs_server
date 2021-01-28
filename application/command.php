@@ -11,5 +11,6 @@
 // +----------------------------------------------------------------------
 
 return [
-    'app\api\command\UpdateGoodsCache',
+    'app\queue\command\ConsoleUsdt',
+    'app\queue\command\ConsoleUni',
 ];

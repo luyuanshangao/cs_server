@@ -40,16 +40,15 @@ class Msg_Process
     {
         try {
            
-            for ($i = 0; $i < 2; $i++) {
+            for ($i = 0; $i < 10; $i++) {
              
                 $process = new Process(function ()  {
                     define('IS_CLI', false);
                     define('APP_PATH', __DIR__ . '/../application/');
                     // require __DIR__ . '/../thinkphp/base.php';
                     require __DIR__ . '/../thinkphp/start.php';
-                    for ($i=0; $i < 60; $i++) { 
+                    for ($i=0; $i < 10; $i++) { 
                         $num = \app\queue\common\NoticeLib::run();
-                        sleep(1);
                     }
                     echo  '剩余'.$num .'条消息'. PHP_EOL;
                 });

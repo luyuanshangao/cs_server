@@ -32,14 +32,10 @@ class Register extends Controller
         }
         if (isset($dataArr['incode']) && $dataArr['incode']) {
             $superiorUser = $UserModel->where(['incode' => $dataArr['incode']])->find();
-            if (!$superiorUser) {
-                return show(1036);
+            if ($superiorUser) {
+                $dataArr['superiorId'] = $superiorUser->userId;
             }
-            $dataArr['superiorId'] = $superiorUser->userId;
         }
-                     //邀请信息
-   
-
         $resuleAddUser = $UserModel->addUser($dataArr);
 
         if (!$resuleAddUser) {

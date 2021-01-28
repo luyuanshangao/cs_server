@@ -161,11 +161,16 @@ class Appversion extends Base
 
         //信息
         $fileInfo = $StorageDriver->getFileInfo();
- 
+
         // 图片上传名
         $fileInfo['fileName'] = $StorageDriver->getFileName();
         $fileInfo['fileDir'] = $StorageDriver->getUplodDir();
+        if(!$fileInfo['fileName'] || !$fileInfo['fileDir']){
+            return show(0);
+        }
         return show(1, $fileInfo);
+
+        
     }
    /**
      * @name: 文件删除

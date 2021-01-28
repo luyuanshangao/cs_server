@@ -56,7 +56,7 @@ class User extends Base
         $this->getPageAndSize($data);
         $condition = $this->filterParam(['userId','userName','userLv','createTime'], $data);
        
-        if (isset($condition['userLv'])) {
+        if (isset($condition['userLv']) && $condition['userLv'] !=='') {
             switch ($condition['userLv']) {
                 case 0:
                         $userIds = ExtensionUser::where([])->column('userId');
@@ -74,11 +74,12 @@ class User extends Base
                     break;
             }
             unset($condition['userLv']);
-        } else {
-            $userIds = ExtensionUser::where([])->column('userId');
-            $condition['userId'] = ['not in',$userIds];
-            unset($condition['userLv']);
         }
+        // } else {
+        //     $userIds = ExtensionUser::where([])->column('userId');
+        //     $condition['userId'] = ['not in',$userIds];
+        //     unset($condition['userLv']);
+        // }
      
         //用户数据
         $total = $UserModel->getCount($condition);

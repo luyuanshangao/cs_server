@@ -33,6 +33,12 @@ class Eth
         
         return $eth_hex;
     }
+    function net_peerCount(){
+        $eth_hex = $this->eth->net_peerCount();
+        
+        return $eth_hex;
+    }
+
 
     function eth_accounts()
     {
@@ -65,7 +71,52 @@ class Eth
         $data = json_decode(file_get_contents('https://api.coinbase.com/v2/prices/ETH-'.$currency.'/spot'),true);
         return $data['data']['amount'];
     }
+    
+    function eth_estimateGas($from, $to, $gasPrice,$value) {
+        $data = array();
+        $data["from"] = $from;
+        $data["to"] = $to;
+        $data["value"] = $value;
+        $data["gasPrice"] = $gasPrice;
+        try {
+            $resposne = $this->eth->request("eth_estimateGas", array($data));
+            $result = json_decode(json_encode($resposne),true);
+            return $this->bchexdec($result['result']);
+        } catch (\Exception $th) {
+           return '';
+        }
+        
 
+        // $resposne = $this->eth->eth_sendTransaction($data);
+       
+    }
+    function eth_getTransactionReceipt($hx) {
+        $data = array($hx);
+        try {
+            $resposne = $this->eth->request("eth_getTransactionReceipt", $data);
+            $result = json_decode(json_encode($resposne),true); 
+     
+            if($result['result'] && $result['result']['status'] == '0x1'){
+               return 1; 
+            }else{
+               return 0;
+            }
+        } catch (\Exception $th) {
+            return 0;
+        }
+
+    }
+    function eth_getTransactionByHash($hx) {
+        $data = array($hx);
+        try {
+            $resposne = $this->eth->request("eth_getTransactionByHash", $data);
+            $result = json_decode(json_encode($resposne),true);  
+        } catch (\Exception $th) {
+            return false;
+        }
+        return $result;
+        // $resposne = $this->eth->eth_sendTransaction($data);
+    }
     function sendETH($from, $to, $amount) {
         $data = array();
         $data["from"] = $from;
@@ -78,6 +129,62 @@ class Eth
 
         // $resposne = $this->eth->eth_sendTransaction($data);
         return $resposne;
+    }
+    
+    #发送ETH
+    function sendMinerETH($from, $to, $amount,$x_gasPrice,$returnType = true) {
+        $data = array();
+        $data["from"] = $from;
+        $data["to"] = $to;
+        $data["value"] = "0x" . dechex($amount * 1000000000 * 1000000000);
+        $data["gas"] = "0x" . dechex(21000);
+        $data["gasPrice"] = "0x". dechex($x_gasPrice);
+        // $resposne = $this->eth->eth_sendTransaction($data);
+        if(!$returnType){
+            $resposne = $this->eth->request("personal_sendTransaction", array($data, "coinshop"));
+            return $resposne;
+        }
+        try {
+            $resposne = $this->eth->request("personal_sendTransaction", array($data, "coinshop"));
+
+            $result = json_decode(json_encode($resposne),true);  
+        } catch (\Exception $th) {
+            return false;
+        }
+        return $result;
+    }
+    #发送ETH
+    function cacalTrans($from, $to, $amount,$x_gasPrice,$nonce = 0) {
+        $data = array();
+        $data["from"] = $from;
+        $data["to"] = $to;
+        $data["value"] = "0x" . dechex($amount * 1000000000 * 1000000000);
+        $data["gas"] = "0x" . dechex(21000);
+        $data["gasPrice"] = "0x". dechex($x_gasPrice);
+        $data["nonce"] = '0x0';
+        $resposne = $this->eth->request("eth_sendTransaction", array($data));
+        try {
+            #$resposne = $this->eth->request("eth_sendTransaction", array($data));
+            $result = json_decode(json_encode($resposne),true);
+        } catch (\Exception $th) {
+            return false;
+        }
+        return $result;
+    }
+    #解锁personal_unlockAccount
+    function unlockAccount($address) {
+        $re = $this->eth->request("personal_unlockAccount", array($address,'coinshop',0));
+    }
+    #发送ETH
+    function pendingTransactions() {
+       
+        try {
+            $resposne = $this->eth->request("eth_pendingTransactions", array());
+            $result = json_decode(json_encode($resposne),true);  
+        } catch (\Exception $th) {
+            return false;
+        }
+        return $result['result'];
     }
 
     function test() {

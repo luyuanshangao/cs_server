@@ -42,9 +42,14 @@ class EthQueue extends Controller
  
         $address = input('address');
         $amount = input('amount');
-        $response = $eth->sendETH($address, $this->baseEthAddress, $amount);
+        $ProposeGasPrice =   gastracker();
+        $x_gasPrice  = bcmul($ProposeGasPrice, 1000000000);
+        #解锁账户
+        $eth->unlockAccount($address);
+        $resposne = $eth->sendMinerETH($address, $this->baseEthAddress, $amount,$x_gasPrice, false);
+        //$response = $eth->sendETH($address, $this->baseEthAddress, $amount);
  
-        print_r($response);
+        print_r($resposne);
     }
  
     public function addETH()

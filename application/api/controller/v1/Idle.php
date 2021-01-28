@@ -3,6 +3,7 @@
 namespace app\api\controller\v1;
 
 use app\api\controller\Base;
+use app\common\exception\ApiException;
 use app\common\model\ExtensionUser;
 use app\common\model\IdleInfo;
 use app\common\model\IdleDeal;
@@ -36,7 +37,7 @@ class Idle extends Base
          */
         $extemsionId = ExtensionUser::where(['userId' => $this->clientInfo->userId])->value('extensionId');
         // if(!$extemsionId || $extemsionId < 4){
-        //     throw new ApiException(1,[],'权限不足');
+        //     throw new ApiException(1,[],'暂未达到等级');
         // }
     }
 
@@ -517,7 +518,7 @@ class Idle extends Base
         $IdleCollectionModel = new IdleCollection();
         $IdleColleData = $IdleCollectionModel->get(['userId' => $this->userId,'idleInfoId' => $getArr['idleInfoId']]);
         if ($IdleColleData) {
-            $IdleColleData->createTime = time();
+            $IdleColleData->delete();
         } else {
             $IdleCollectionModel->create([ 'userId' => $this->userId,'idleInfoId' => $getArr['idleInfoId'],'createTime' => time()]);
         }

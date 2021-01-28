@@ -95,10 +95,12 @@ class ExtensionUser extends BaseModel
         if ($superiorUserData['lose']) {
             return ;
         }
+        
         switch ($superiorUserData['extensionId']) {
             case 1:
                     //普通用户 邀请10人升级
                     $count = ExtensionInvitation::where(['superiorId' => $userId])->count(); //已邀请数量
+                   
                 if ($count >= 10) {
                     //升级
                     $superiorUserData->extensionId = 2;
@@ -109,6 +111,8 @@ class ExtensionUser extends BaseModel
                         $this->changeGrade($superiorId);
                     }
                 }
+                
+                
                 break;
             case 2:
                     //试用初级  10人购买升级

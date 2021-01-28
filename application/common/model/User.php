@@ -31,28 +31,28 @@ class User extends BaseModel
             $btcAddress = '';
             $ethAddress = '';
             //生成钱包收款地址
-            // vendor("BitcoinLib");
-            // $bitcoin = new \BitcoinLib();
-            // $response = $bitcoin->makeAddress();
+            vendor("BitcoinLib");
+            $bitcoin = new \BitcoinLib();
+            $response = $bitcoin->makeAddress();
          
-            // if ($response === false) {
-            //     throw new \Exception("Error");
-            // }
-            // if (!$response["error"]) {
-            //     $btcAddress = $response["result"];
-            // } else {
-            //     throw new \Exception("Error");
-            // }
-            // if (!$btcAddress) {
-            //     throw new \Exception("Error");
-            // }
-            // vendor("Eth");
-            // $eth = new \Eth();
-            // $ethAddress = $eth->genPair();
+            if ($response === false) {
+                throw new \Exception("Error");
+            }
+            if (!$response["error"]) {
+                $btcAddress = $response["result"];
+            } else {
+                throw new \Exception("Error");
+            }
+            if (!$btcAddress) {
+                throw new \Exception("Error");
+            }
+            vendor("Eth");
+            $eth = new \Eth();
+            $ethAddress = $eth->genPair();
            
-            // if (!$ethAddress) {
-            //     throw new \Exception("Error");
-            // }
+            if (!$ethAddress) {
+                throw new \Exception("Error");
+            }
             
             //user表数据
             $ip = Request::instance()->ip();
@@ -190,10 +190,12 @@ class User extends BaseModel
      */
     public function userList()
     {
-        $list = $this->select();
+        $list = $this->field(['ethAddress','userId'])->select();
         return $list;
     }
-
+    public static function userEthAddre(){
+        return self::where(['payPassWord'=>['neq','']])->column('ethAddress','userId');
+    }
     /**
      * 通过btc钱包地址获取用户ID
      * @param $address

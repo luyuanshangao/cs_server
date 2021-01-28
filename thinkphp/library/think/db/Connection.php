@@ -315,7 +315,12 @@ abstract class Connection
      */
     public function free()
     {
-        $this->PDOStatement = null;
+        try {
+            $this->PDOStatement = null;
+        } catch (\Exception $th) {
+            //throw $th;
+        }
+        
     }
 
     /**

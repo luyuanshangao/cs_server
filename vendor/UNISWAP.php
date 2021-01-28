@@ -17,8 +17,8 @@ class UNISWAP
         $this->eth = new EthereumRPC(RPC_IP, RPC_PORT);
         $this->erc = new ERC20($this->eth);
 
-        // uniswap 合约地址
-        $this->contract = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984";
+        // usdt 合约地址
+        $this->contract = "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984"; 
     }
 
     /*
@@ -29,22 +29,21 @@ class UNISWAP
     function getBalanceOfAddress($addr)
     {
         $token = $this->erc->token($this->contract);
-        $usdt = $token->balanceOf($addr);
-        return array('balance'=>$usdt);
+        $uni = $token->balanceOf($addr);
+        return array('balance'=>$uni);
     }
 
-    function sendUNI($from, $to, $amount) {
+    function sendUNI($from, $to, $amount,$gas_price,$limit = 60000) {
         $token = $this->erc->token($this->contract);
         $erc20_data = $token->encodedTransferData($to, $amount);
-
         $transaction = $this->eth->personal()->transaction($from, $this->contract) // from $payer to $contract address
-        ->gas(60000)
+        ->gas($limit,$gas_price)  //60000
         ->amount("0") // Amount should be ZERO
         ->data($erc20_data); // Our encoded ERC20 token transfer data from previous step
 
-        $txId = $transaction->send("coinbuy");
+        $txId = $transaction->send("coinshop");
 
-        print_r($txId);
+        //print_r($txId);
 
         return $txId;
     }

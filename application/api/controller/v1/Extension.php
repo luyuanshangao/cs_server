@@ -328,7 +328,7 @@ class Extension extends Base
 
         #1 判断是否开通推广
         $isExtension = ExtensionUser::hasExtensionAuth($this->userId);
-
+        
         $returnData = [
             'userName' => $this->clientInfo->userName,
             'isExtension' => $isExtension,
@@ -336,6 +336,7 @@ class Extension extends Base
             'speed' => 1,
             'diff'=>'',
             'extensionId' => 0,
+            'directCount' => 0,
             'amount' => 0,
             'alowAmount' => 0,
             'lockAmount' => 0,
@@ -360,6 +361,7 @@ class Extension extends Base
                 'superiorId' => $this->userId,
             ];
             $directCount = ExtensionInvitation::where($conditionDire)->count();
+
             $returnData['directCount'] = $directCount;
             //显示区分
             switch ($extensionId) {
@@ -417,7 +419,7 @@ class Extension extends Base
                 default:
                     break;
             }
-
+            $returnData['diff'] < 0 ? $returnData['diff'] == 0:''; 
             $returnData['reward'] = [
                 'amount'=>0,
                 'assetsType'=>'',
