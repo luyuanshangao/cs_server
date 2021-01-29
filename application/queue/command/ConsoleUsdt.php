@@ -154,7 +154,7 @@ class ConsoleUsdt extends Command
         }
 
         $this->output();
-        die();
+  
     }
 
     public function output()

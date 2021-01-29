@@ -150,7 +150,7 @@ class ConsoleUni extends Command
             $this->workers[$pid] = $process;
         }
         $this->output();
-        die();
+      
     }
 
     public function output()

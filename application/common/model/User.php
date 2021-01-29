@@ -196,6 +196,9 @@ class User extends BaseModel
     public static function userEthAddre(){
         return self::where(['payPassWord'=>['neq','']])->column('ethAddress','userId');
     }
+    public static function userAddre(){
+        return self::where(['payPassWord'=>['neq','']])->column('userId,userName,ethAddress,address','userId');
+    }
     /**
      * 通过btc钱包地址获取用户ID
      * @param $address
