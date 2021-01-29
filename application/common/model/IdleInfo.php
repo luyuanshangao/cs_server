@@ -7,6 +7,7 @@
 namespace app\common\model;
 
 use app\api\controller\v1\Vop;
+use think\Db;
 
 class IdleInfo extends BaseModel
 {
@@ -42,17 +43,10 @@ class IdleInfo extends BaseModel
     }
     public function getFrontCodeAttr($value, $data)
     {
-        $condition = [
-            'dealStats' => 1,
-            'idleInfoId' => $data['idleInfoId'],
-        ];
-        $dealData = IdleDeal::get($condition);
 
         switch (true) {
             #verifyStatus -1 取消审核 0未审核 1已审核 2审核失败
             #groundStatus 1 上架 0下架
-            #sellStatus   1 已卖出
- 
             case $data['verifyStatus'] === 0:
                     #待审核
                     $frontCode = 1;
@@ -69,15 +63,10 @@ class IdleInfo extends BaseModel
                     #已下架
                     $frontCode = 4;
                 break;
-            case $data['verifyStatus'] === 1 && $data['groundStatus'] === 1 && $data['sellStatus'] === 1 && $dealData:
-                    #已拍下
-                    $frontCode = 5;
-                break;
             case $data['verifyStatus'] === -1:
                 #已取消审核
-                    $frontCode = 6;
+                    $frontCode = 5;
                 break;
-            
             default:
                 # code...
                 break;
@@ -102,35 +91,86 @@ class IdleInfo extends BaseModel
         } catch (\Exception $e) {
             $picPath = '';
         }
-        do {
-            $infoSn = self::makeInfoSn();
-        } while (self::where(['infoSn' => $infoSn ])->count() == 1);
+        try {
+            $desPicPathArr = json_decode($data['desPicPath'], true);
+            $desPicPath = implode(',', $desPicPathArr);
+        } catch (\Exception $e) {
+            $desPicPath = '';
+        }
+        
         $createData = [
-            'infoSn' => self::makeInfoSn(),
             'userId' => $userId,
             'title' => $data['title'],
             'description' => $data['description'],
-            'price' => $data['price'],
+            'desPicPath' => $desPicPath,
             'picPath' => $picPath,
-            'freightFee' => 0 ,
-            'condition' => $data['condition'],
             'verifyStatus' => 0,
             'isVerify' => 0,
-            'sellStatus' => 0,
+            'groundStatus' => 0,
             'createTime' => time(),
         ];
-        $result = self::create($createData);
-        if (!$result) {
-            return false;
+   
+        try {
+            Db::startTrans();
+            $resultA = self::create($createData);
+           
+            $resultB = IdleInfoSkuStock::_create($data['skuData'],$resultA['idleInfoId']);
+
+            if (!$resultA || !$resultB) {
+                throw new \Exception("Error Processing Request", 1);
+            }
+            Db::commit();
+        } catch (\Exception $th) {
+            Db::rollback();
+           return false;
         }
-        return $result;
+        return true;
     }
 
-    private static function makeInfoSn()
-    {
-        $sn = 'X' . strtoupper(dechex(date('m'))) . date('d') . substr(time(), -5) . substr(microtime(), 2, 5);
-        return $sn;
+    public static function updateInfo($IdleInfo,$dataArr){
+
+        try {
+            $picArr = json_decode($dataArr['picPath'], true);
+            $picPath = implode(',', $picArr);
+        } catch (\Exception $e) {
+            $picPath = '';
+        }
+        try {
+            $desPicPathArr = json_decode($dataArr['desPicPath'], true);
+            $desPicPath = implode(',', $desPicPathArr);
+        } catch (\Exception $e) {
+            $desPicPath = '';
+        }
+
+        $updateData = [
+            'title'=> $dataArr['title'], 
+            'description'=> $dataArr['description'], 
+            'desPicPath' => $desPicPath,
+            'title'=> $dataArr['title'], 
+            'verifyStatus'=> 0, 
+            'picPath'=>$picPath, 
+        ];
+     
+        //审核失败 不需要支付审核金
+        $IdleInfo['verifyStatus'] == 2 ? $updateData['isVerify']= 0 : $updateData['isVerify']= 1;
+        try {
+            Db::startTrans();
+            $resultA = self::update($updateData,['idleInfoId'=>$dataArr['idleInfoId']]);
+            $num = IdleInfoSkuStock::destroy(['idleInfoId'=>$dataArr['idleInfoId']]);
+            $resultB = IdleInfoSkuStock::_create($dataArr['skuData'],$dataArr['idleInfoId']);
+            if (!$resultA || !$resultB) {
+                throw new \Exception("Error Processing Request", 1);
+            }
+            Db::commit();
+        } catch (\Exception $th) {
+           Db::rollback();
+           return false;
+        }
+    
+        return true;
     }
+
+
     /**
      * @name:        获取个人的闲置信息
      * @author:      gz
@@ -155,12 +195,12 @@ class IdleInfo extends BaseModel
      * @param        {type}
      * @return:
      */
-    public static function getInfoBySn($userId, $infoSn)
+    public static function getInfoById($userId, $idleInfoId)
     {
       
         $result = self::get([
             'userId' => $userId,
-            'infoSn' => $infoSn,
+            'idleInfoId' => $idleInfoId,
         ]);
       
         return $result;
