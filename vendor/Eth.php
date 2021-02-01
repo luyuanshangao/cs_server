@@ -33,6 +33,32 @@ class Eth
         
         return $eth_hex;
     }
+    function eth_getBlockTransactionCountByNumber($tx='latest'){
+        $eth_hex = $this->eth->eth_getBlockTransactionCountByNumber($tx);
+        
+        return $eth_hex;
+    }
+    function eth_getTransactionByBlockNumberAndIndex($block, $index){
+      
+        try {
+            $data = $this->eth->eth_getTransactionByBlockNumberAndIndex($block, $index);
+            $result = json_decode(json_encode($data),true);
+            return $result;
+        } catch (\Exception $th) {
+            return [];
+        }
+       
+    }
+    function eth_getTransactionReceipt($hx) {
+        try {
+            $data = $this->eth->eth_getTransactionReceipt($hx);
+            $result = json_decode(json_encode($data),true);
+            return $result;
+        } catch (\Exception $th) {
+            return [];
+        }
+
+    }
     function net_peerCount(){
         $eth_hex = $this->eth->net_peerCount();
         
@@ -90,22 +116,7 @@ class Eth
         // $resposne = $this->eth->eth_sendTransaction($data);
        
     }
-    function eth_getTransactionReceipt($hx) {
-        $data = array($hx);
-        try {
-            $resposne = $this->eth->request("eth_getTransactionReceipt", $data);
-            $result = json_decode(json_encode($resposne),true); 
-     
-            if($result['result'] && $result['result']['status'] == '0x1'){
-               return 1; 
-            }else{
-               return 0;
-            }
-        } catch (\Exception $th) {
-            return 0;
-        }
 
-    }
     function eth_getTransactionByHash($hx) {
         $data = array($hx);
         try {

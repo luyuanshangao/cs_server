@@ -67,7 +67,52 @@ class BitcoinLib
         $response = $this->post($data);
         return $response;
     }
-
+    public function getbestblockhash() {
+        $data = array(
+            'jsonrpc' => '1.0',
+            'method' => 'getbestblockhash',
+            'params' => [],
+            'id' => time(),
+        );
+        $data = json_encode($data);
+        $response = $this->post($data);
+        return $response;
+    }
+    public function getblockchaininfo() {
+        $data = array(
+            'jsonrpc' => '1.0',
+            'method' => 'getblockchaininfo',
+            'params' => [],
+            'id' => time(),
+        );
+        $data = json_encode($data);
+        $response = $this->post($data);
+        return $response;
+    }
+    public function getblockcount() {
+        $data = array(
+            'jsonrpc' => '1.0',
+            'method' => 'getblockcount',
+            'params' => [],
+            'id' => time(),
+        );
+        $data = json_encode($data);
+        $response = $this->post($data);
+        return $response;
+    }
+    //查询指定区块后发生的钱包交易
+    public function listsinceblock($HeaderHash) {
+        $data = array(
+            'jsonrpc' => '1.0',
+            'method' => 'listsinceblock',
+            'params' => [$HeaderHash],
+            'id' => time(),
+        );
+        $data = json_encode($data);
+        $response = $this->post($data);
+        return $response;
+    }
+    
     public function post($data) {
         //初始化
         $curl = curl_init();

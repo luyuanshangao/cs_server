@@ -12,11 +12,11 @@ class Home extends Controller
 
     public function index()
     {
-        //  vendor("BitcoinLib");
-        // $bitcoin = new \BitcoinLib();
-        // $response = $bitcoin->loadwallet();
-        // var_export($response);
-        // die;
+         vendor("BitcoinLib");
+        $bitcoin = new \BitcoinLib();
+        $response = $bitcoin->loadwallet();
+        var_export($response);
+        die;
         vendor("Eth");
         $eth = new \Eth();
         $resultReceipt = $eth->eth_getTransactionReceipt('0xb8d5068764abe038260b3affd77b55c02ce5cc7f3641ae4b86c4d9fdd82c104d');

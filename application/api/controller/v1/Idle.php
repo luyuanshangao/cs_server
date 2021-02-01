@@ -36,9 +36,9 @@ class Idle extends Base
          * 交易的权限控制
          */
         $extemsionId = ExtensionUser::where(['userId' => $this->clientInfo->userId])->value('extensionId');
-        // if(!$extemsionId || $extemsionId < 4){
-        //     throw new ApiException(1,[],'暂未达到等级');
-        // }
+        if(!$extemsionId || $extemsionId < 4){
+            throw new ApiException(1,[],'暂未达到等级');
+        }
     }
 
     public function list()
