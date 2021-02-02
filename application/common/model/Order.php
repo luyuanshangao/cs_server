@@ -349,8 +349,8 @@ class Order extends BaseModel
             }
 
             // #币安下单
-            vendor("BinanceTest");
-            $binance = new \BinanceTest();
+            vendor("Binance");
+            $binance = new \Binance();
 
             #下单数量
             $amount = $orderInfo->totalMoneyWithPayType;
