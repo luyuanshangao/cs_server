@@ -376,7 +376,7 @@ class Order extends BaseModel
                     
                 if (isset($result["code"])) {
                     #有错误信息下单失败 返回支付订单失败
-                    throw new \Exception();
+                    throw new \Exception('币安下单失败'.var_export($result));
                 }
                 
             }
@@ -430,6 +430,9 @@ class Order extends BaseModel
               
              return true;
         } catch (\Exception $th) {
+            $newFile = fopen("order_par_error.txt","a+");
+            fwrite($newFile,$th->getMessage().PHP_EOL);
+            fclose($newFile);
             $this->rollback();
             return false;
         }
