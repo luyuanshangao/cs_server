@@ -1,6 +1,6 @@
 <?php
 
-class Binance
+class BinanceTest
 {
     private $url;
     private $api_key;
@@ -8,123 +8,17 @@ class Binance
 
     function __construct()
     {
-        #测试网络
-        // $this->url = "https://testnet.binance.vision";
-        // $this->api_key = "BLIS6EW79TIIbCi5qqVwHEL4B0HTZcS80XToq95mObRpaf6T54hKH4JDklpW2juy";
-        // $this->secret_key = "IlHLu5vIRdpNvkQsDN5PHgG0WC4czGHqXv82tRg3ya7WTTVP6dSQR1DUXyz10J9q";
-        #正式网络
-        $this->url = "https://api.binance.com";
-        $this->api_key = "h2BB7ze8XByNYM8mIK7ojdwfQ8fYt7BTUvUUFToxaXmlAeNPfTDE7ze7MFPLSPbf";
-        $this->secret_key = "XTKqdJE2ywcOhFxV8T3l4Mvriqs9bnwtCJSUffD78BkHXk1t1rbkuDYmHseaFXn5";
-    }
 
-    public function ETH2USDT($amount)
-    {
-        $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "ETHUSDT", "limit" => 5));
-        if (isset($dataInfo["code"])) {
-            return false;
-        } else {
-            $rate = $dataInfo["bids"][1][0];
-            $usdt = $amount * $rate;
-            return number_format($usdt, 4, '.', '');
-        }
-    }
-    public function UNI2USDT($amount)
-    {
-        $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "UNIUSDT", "limit" => 5));
-        if (isset($dataInfo["code"])) {
-            return false;
-        } else {
-            $rate = $dataInfo["bids"][1][0];
-            $usdt = $amount * $rate;
-            return number_format($usdt, 4, '.', '');
-        }
-    }
-    public function USDT2ETH($amount)
-    {
-        $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "ETHUSDT", "limit" => 5));
-        if (isset($dataInfo["code"])) {
-            return false;
-        } else {
-            $rate = $dataInfo["bids"][1][0];
-            $eth = $amount / $rate;
-            return number_format($eth, 8, '.', '');
-        }
-    }
-    public function BTC2USDT($amount)
-    {
-        $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "BTCUSDT", "limit" => 5));
-        if (isset($dataInfo["code"])) {
-            return false;
-        } else {
-            $rate = $dataInfo["bids"][1][0];
-            $usdt = $amount * $rate;
-            return number_format($usdt, 4, '.', '');
-        }
-    }
-    public function USDT2BTC($amount)
-    {
-        $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "BTCUSDT", "limit" => 5));
+        $this->url = "https://testnet.binance.vision";
+        $this->api_key = "BLIS6EW79TIIbCi5qqVwHEL4B0HTZcS80XToq95mObRpaf6T54hKH4JDklpW2juy";
+        $this->secret_key = "IlHLu5vIRdpNvkQsDN5PHgG0WC4czGHqXv82tRg3ya7WTTVP6dSQR1DUXyz10J9q";
 
-        if (isset($dataInfo["code"])) {
-            return false;
-        } else {
-            $rate = $dataInfo["bids"][1][0];
-            $btc = $amount / $rate;
-            return number_format($btc, 8, '.', '');
-        }
+        // $this->url = "https://api.binance.com";
+        // $this->api_key = "h2BB7ze8XByNYM8mIK7ojdwfQ8fYt7BTUvUUFToxaXmlAeNPfTDE7ze7MFPLSPbf";
+        // $this->secret_key = "XTKqdJE2ywcOhFxV8T3l4Mvriqs9bnwtCJSUffD78BkHXk1t1rbkuDYmHseaFXn5";
     }
-    public function USDT2USDT($amount)
-    {
-        return $amount;
-    }
+    
 
-    public function getDepth($symbol, $side, $amount)
-    {
-        $dataInfo = $this->sendCurl("/api/v3/ticker/bookTicker", array("symbol" => $symbol));
-        if (!$dataInfo) {
-            return false;
-        }
-        if (isset($dataInfo["code"])) {
-            return false;
-        }
-        if ($side == "SELL") {
-            return $amount * $dataInfo["bidPrice"];
-        } else {
-            return $amount / $dataInfo["bidPrice"];
-        }
-    }
-
-    public function makeOrder($symbol, $side, $amount)
-    {
-        $dataInfo = $this->sendCurl("/api/v3/ticker/bookTicker", array("symbol" => $symbol));
-        if (!$dataInfo) {
-            return false;
-        }
-        if (isset($dataInfo["code"])) {
-            return false;
-        }
-
-        $params = array();
-        $params["symbol"] = $symbol;
-        $params["side"] = $side;
-        $params["type"] = "LIMIT";
-        $params["timeInForce"] = "GTC";
-        $params["quantity"] = $amount;
-        $params["price"] = $dataInfo["bidPrice"];
-        $params["recvWindow"] = 60000;
-        $params["timestamp"] = getMillisSecond();
-        $sign = $this->makeSignature($params, $this->secret_key);
-        $params["signature"] = $sign;
-
-        $dataInfo = $this->sendCurl("/api/v3/order", $params, "post");
-
-        if (isset($dataInfo["code"])) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
     //测试订单
     public function order_test($symbol, $side, $amount, $price)
@@ -315,8 +209,10 @@ class Binance
     }
 
 
-    private function sendCurl($api, $data, $method = "get")
-    {
+
+
+
+    private function sendCurl($api, $data, $method = "get") {
         //初始化
         $curl = curl_init();
         $headers = array(
@@ -325,15 +221,17 @@ class Binance
         //设置抓取的url
         if ($method == "get") {
             if (empty($data)) {
-                curl_setopt($curl, CURLOPT_URL, $this->url . $api);
+                curl_setopt($curl, CURLOPT_URL, $this->url.$api);
             } else {
-                curl_setopt($curl, CURLOPT_URL, $this->url . $api . "?" . http_build_query($data));
+                curl_setopt($curl, CURLOPT_URL, $this->url.$api."?".http_build_query($data));
             }
         } else {
-            curl_setopt($curl, CURLOPT_URL, $this->url . $api);
+            curl_setopt($curl, CURLOPT_URL, $this->url.$api);
             curl_setopt($curl, CURLOPT_POST, 1);
             curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+        
         }
+
         //设置请求头
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         //设置头文件的信息作为数据流输出
@@ -345,7 +243,7 @@ class Binance
         // curl_setopt($curl, CURLOPT_PROXY, "127.0.0.1"); //代理服务器地址  
         // curl_setopt($curl, CURLOPT_PROXYPORT, 1080); //代理服务器端口 
         // curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0); // 对认证证书来源的检查
-
+        
         //执行命令
         $data = curl_exec($curl);
         //关闭URL请求

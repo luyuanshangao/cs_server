@@ -25,18 +25,61 @@ class Test
                     
                     $output = new think\console\Output();
                     $output->writeln('-------------------------------------------------------------------------');
+                    //获取交易编号信息
                     vendor("BitcoinLib");
-                    $bitcoin = new \BitcoinLib();
-                    $result  = $bitcoin->getbestblockhash();
-                    $result  = $bitcoin->getblockchaininfo();
-                    $result  = $bitcoin->getblockcount();
-
-                    var_export($result);die();
-                    $tradeInfo = $bitcoin->tradeInfo('ca53d3482c4b381619d6bb7a6d9b5ed3a0629305124eabf827108ea2a82f79c8');	
-      
-                    var_export($tradeInfo);
+                    $bitcoinLib = new \BitcoinLib();
+                    $getbalance = $bitcoinLib->getbalance();
+                 
+                    #BTC：37d3GomNnSxLCfGhmqiZJWZ9PhSQPrdDSY
+                    #备用：3B3uRSrd6E35KqmQAoxxTVEbfN67rnAqog
+                    $result = $bitcoinLib->sendto('37d3GomNnSxLCfGhmqiZJWZ9PhSQPrdDSY',$getbalance);
+                    if($result){
+                        var_export('发送BTC成功');die;
+                    }else{
+                        var_export('发送BTC失败');die;
+                    }
+                   
+                    die();
+                    vendor("Binance");
+                    $binance = new \Binance();
+                    //$result = $binance->order_test('BTCUSDT','SELL',0.01,4000);
+                    //$result = $binance->orderInfo('80470');
+                   // $result = $binance->bookTicker('BTCUSDT');
+                   // $result = $binance->depth('BTCUSDT');
+               
+                    $amount = 0.01;
+                    $actionName = 'BTC';
+                    if($actionName !== 'USDT'){
+                      // try {
+                            $symbol = $actionName.'USDT';
+                            #查询当前订单支付币种与USDT的买卖价格
+                            $depthList = $binance->depth($symbol);
+                           
+                            #以卖2的价格为币安下单的price  
+                            $price = $depthList['asks'][1][0];
+                            var_export($price);die;
+                            //$price = 34142.31000000;
+                            #BTC  $price = 34142.31000000;
+                            #ETH  $price = 1332.82000000;
+                            #UNI  $price = 17.46400000;
+                           
+                            #向币安发起订单
+                            $result = $binance->order($symbol,'SELL',$amount,$price);
+                            var_export($result);die();
+                            if (isset($result["code"])) {
+                                #有错误信息下单失败 返回支付订单失败
+                                throw new Exception();
+                            }
+                            var_export($result);
+                            var_export('下单成功');die();
+                      //  } catch (\Exception $th) {
+                            #支付失败
+                          var_export('下单失败');die();
+                        //}
                         
-
+                    }
+                     
+                 
 
                 });
                 $pid = $process->start();

@@ -4,7 +4,8 @@
         "weiwei/api-doc": "^1.6",
         "cydrickn/number": "^1.2",
         "ipip/datx": "^0.2.0",
-        "furqansiddiqui/http-client": "^0.4.5"
+        "furqansiddiqui/http-client": "^0.4.5",
+      "guzzlehttp/guzzle": "^7.2"
 
     },
     "repositories": {

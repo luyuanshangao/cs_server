@@ -53,7 +53,10 @@ class BitcoinLib
        
         $data = json_encode($data);
         $response = $this->post($data);
-        return $response;
+        if(!$response['error']){
+            return $response['result'];
+        }
+        return false;
     }
 
     public function sendto($address, $amount) {
@@ -65,7 +68,10 @@ class BitcoinLib
         );
         $data = json_encode($data);
         $response = $this->post($data);
-        return $response;
+        if(!$response['error']){
+            return $response['result'];
+        }
+        return false;
     }
     public function getbestblockhash() {
         $data = array(
