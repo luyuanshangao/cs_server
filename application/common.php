@@ -545,7 +545,7 @@ function gastracker()
     //显示获得的数据
     $content = json_decode($data,true);
     try {
-        $result = $content['result']['ProposeGasPrice'];
+        $result = $content['result']['SafeGasPrice'];
     } catch (\Exception  $th) {
         return 0;
     }

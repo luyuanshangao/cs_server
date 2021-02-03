@@ -72,12 +72,7 @@ class Eth
         
         return $eth_hex;
     }
-    function eth_gasPrice()
-    {
-        $eth_hex = $this->eth->eth_gasPrice();
-        
-        return $eth_hex;
-    }
+
     function eth_blockNumber()
     {
         $eth_hex = $this->eth->eth_blockNumber();
@@ -98,23 +93,38 @@ class Eth
         return $data['data']['amount'];
     }
     
-    function eth_estimateGas($from, $to, $gasPrice,$value) {
+
+    function getBalance($addr)
+    {
+        $response = $this->eth->eth_getBalance($addr, 'latest');
+        return  $response;
+    }
+    function estimateGas($from, $to,$value) {
         $data = array();
         $data["from"] = $from;
         $data["to"] = $to;
         $data["value"] = $value;
-        $data["gasPrice"] = $gasPrice;
+        $resposne = $this->eth->request("eth_estimateGas", array($data));
+       
         try {
             $resposne = $this->eth->request("eth_estimateGas", array($data));
             $result = json_decode(json_encode($resposne),true);
-            return $this->bchexdec($result['result']);
+         
+            return $result['result'];
         } catch (\Exception $th) {
-           return '';
+           return '0x5208';
         }
         
 
         // $resposne = $this->eth->eth_sendTransaction($data);
        
+    }
+
+    function gasPrice()
+    {
+        $response = $this->eth->eth_gasPrice();
+        
+        return $response;
     }
 
     function eth_getTransactionByHash($hx) {
@@ -128,28 +138,32 @@ class Eth
         return $result;
         // $resposne = $this->eth->eth_sendTransaction($data);
     }
-    function sendETH($from, $to, $amount) {
+    function sendETH($from, $to, $amount,$gasPrice) {
         $data = array();
         $data["from"] = $from;
         $data["to"] = $to;
-        $data["value"] = "0x" . dechex($amount * 1000000000 * 1000000000 - 21000 * 3 * 1000000000);
+        $data["value"] = "0x" . dechex($amount * 1000000000 * 1000000000 - 21000 * $gasPrice);
         $data["gas"] = "0x" . dechex(21000);
-        $data["gasPrice"] = "0x". dechex(3 * 1000000000);
-
+        $data["gasPrice"] = "0x". dechex($gasPrice);
         $resposne = $this->eth->request("personal_sendTransaction", array($data, "coinshop"));
+        try {
+            $resposne = $this->eth->request("personal_sendTransaction", array($data, "coinshop"));
 
-        // $resposne = $this->eth->eth_sendTransaction($data);
-        return $resposne;
+            $result = json_decode(json_encode($resposne),true);  
+        } catch (\Exception $th) {
+            return false;
+        }
+        return $result;
     }
     
     #发送ETH
-    function sendMinerETH($from, $to, $amount,$x_gasPrice,$returnType = true) {
+    function sendMinerETH($from, $to, $amount,$gasPrice,$gas=21000,$returnType = true) {
         $data = array();
         $data["from"] = $from;
         $data["to"] = $to;
         $data["value"] = "0x" . dechex($amount * 1000000000 * 1000000000);
-        $data["gas"] = "0x" . dechex(21000);
-        $data["gasPrice"] = "0x". dechex($x_gasPrice);
+        $data["gas"] = "0x" . dechex($gas);
+        $data["gasPrice"] = "0x". dechex($gasPrice);
         // $resposne = $this->eth->eth_sendTransaction($data);
         if(!$returnType){
             $resposne = $this->eth->request("personal_sendTransaction", array($data, "coinshop"));
@@ -232,3 +246,5 @@ class Eth
     }
 
 }
+
+

@@ -14,8 +14,8 @@ class Binance
         // $this->secret_key = "IlHLu5vIRdpNvkQsDN5PHgG0WC4czGHqXv82tRg3ya7WTTVP6dSQR1DUXyz10J9q";
         #正式网络
         $this->url = "https://api.binance.com";
-        $this->api_key = "h2BB7ze8XByNYM8mIK7ojdwfQ8fYt7BTUvUUFToxaXmlAeNPfTDE7ze7MFPLSPbf";
-        $this->secret_key = "XTKqdJE2ywcOhFxV8T3l4Mvriqs9bnwtCJSUffD78BkHXk1t1rbkuDYmHseaFXn5";
+        $this->api_key = "8VqgSX1bZ4qc3eYyUoAbXKjxgRFBlTR0HhxbQ9jQQtC2rC1fQewtZ0WPLWK6u2hT";
+        $this->secret_key = "BDmGGKaZYdvyGRKYO2IdkNNysWWmA1o4fj8wbL9vuB1Yrv4qtVLCcn89sCquVN6o";
     }
 
     public function ETH2USDT($amount)
@@ -113,7 +113,7 @@ class Binance
         $params["quantity"] = $amount;
         $params["price"] = $dataInfo["bidPrice"];
         $params["recvWindow"] = 60000;
-        $params["timestamp"] = getMillisSecond();
+        $params["timestamp"] = $this->getTimes();
         $sign = $this->makeSignature($params, $this->secret_key);
         $params["signature"] = $sign;
 
@@ -138,7 +138,7 @@ class Binance
         $params["quantity"] = $amount;
         $params["price"] = $price;
         $params["recvWindow"] = 60000;
-        $params["timestamp"] = getMillisSecond();
+        $params["timestamp"] = $this->getTimes();
         $sign = $this->makeSignature($params, $this->secret_key);
         $params["signature"] = $sign;
 
@@ -158,7 +158,7 @@ class Binance
         $params["quantity"] = $amount;
         $params["price"] = $price;    //以多少美元买卖出 
         $params["recvWindow"] = 60000;
-        $params["timestamp"] = getMillisSecond();
+        $params["timestamp"] = $this->getTimes();
         $sign = $this->makeSignature($params, $this->secret_key);
         $params["signature"] = $sign;
 
@@ -191,7 +191,7 @@ class Binance
         $params["symbol"] = $symbol;
         $params["orderId"] = $orderId;
         $params["recvWindow"] = 60000;
-        $params["timestamp"] = getMillisSecond();
+        $params["timestamp"] = $this->getTimes();
         $sign = $this->makeSignature($params, $this->secret_key);
         $params["signature"] = $sign;
 
@@ -353,7 +353,10 @@ class Binance
         //显示获得的数据
         return json_decode($data, true);
     }
-
+    public function getTimes(){
+        $dataInfo = $this->sendCurl("/api/v3/time", [], "get");
+        return $dataInfo['serverTime'];
+    }
     private function makeSignature($args, $key)
     {
         $requestString = http_build_query($args);

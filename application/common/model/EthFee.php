@@ -8,28 +8,22 @@ namespace app\common\model;
 
 class EthFee extends BaseModel
 {
-    public static function insertData($transactionHash,$from,$to,$amountFee,$gas_price,$rechargeUserId,$rechargeType,$rechargeAount){
+    public static function insertData($transactionHash,$from,$to, $gasPriceToTen, $userId,$assetstype){
         $data = [
             'transactionHash'=>$transactionHash,
             'from'=>$from,
             'to'=>$to,
-            'amountFee'=>$amountFee,
-            'gas_price'=>$gas_price,
-            'rechargeUserId'=>$rechargeUserId,
-            'rechargeType'=>$rechargeType,
-            'rechargeAount'=>$rechargeAount,
+            'gas_price'=>$gasPriceToTen,
+            'userId'=>$userId,
+            'assetstype'=>$assetstype,
             'status'=>0,
-  
         ];
         self::create($data);
         return true;
     }
 
-    public static function getPendingTransactions($ethAddress){
-        $data = self::where(['status'=>0,'to'=>$ethAddress])->find();
-        if($data){
-            return $data->toArray();
-        }
+    public static function getPendingTransactions(){
+        $data = self::where(['status'=>0])->select();
         return $data;
     }
     public static function closeTransactionsByHx($Hx){

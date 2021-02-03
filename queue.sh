@@ -6,8 +6,6 @@ curl http://api.coinshop.vip/queue/OrderQueue/checkPromotionIncome
 curl http://api.coinshop.vip/queue/OrderQueue/checkPromotionAuth
 curl http://api.coinshop.vip/queue/OrderQueue/upRate
 
-python /www/cs_server/ethDaemon.py start 
-
 curl http://api.coinshop.vip/queue/BitcoinQueue/listener
 
 

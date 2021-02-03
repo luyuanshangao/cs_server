@@ -120,9 +120,9 @@ class Order extends BaseModel
             //$mopResult = bccomp('99', $this->goodsArrSumPrice, 5);
           
             //小于99usdt
-            if ($goodsMoney < 15) {
-                throw new \Exception('', 1037);
-            }
+            // if ($goodsMoney < 15) {
+            //     throw new \Exception('', 1037);
+            // }
             
             //收货地址信息
             $addressObj = UserAddress::get(['addressId' => $dataArr['addressId'],'userId' => $userId]);
@@ -343,10 +343,10 @@ class Order extends BaseModel
             }
             //第三方确认预占库存 实际是去支付订单
 
-            $result =  Vop::occupyStockConfirm($orderInfo->ylOrderId);
-            if (!$result) {
-                throw new \Exception("Error");
-            }
+            // $result =  Vop::occupyStockConfirm($orderInfo->ylOrderId);
+            // if (!$result) {
+            //     throw new \Exception("Error");
+            // }
 
             // #币安下单
             vendor("Binance");
@@ -356,7 +356,7 @@ class Order extends BaseModel
             $amount = $orderInfo->totalMoneyWithPayType;
             #支付币种
 
-            $payTypeName = $$orderInfo->getData('payTypeName');
+            $payTypeName = $orderInfo->getData('payTypeName');
             if($payTypeName !== 'USDT'){
                
                 #拼接交易对信息
@@ -372,13 +372,20 @@ class Order extends BaseModel
                 #UNI  $price = 17.46400000;
                    
                 #向币安发起订单
-                $result = $binance->order($symbol,'SELL',$amount,$price);
-                    
+                $result = $binance->order($symbol,'SELL',bcdiv(floatval(bcmul($amount,1000000)),1000000,8),$price);
+                //bcdiv(floatval(bcmul($amount,1000000)),1000000,8)
+            //   var_export($amount);die;
+                $newFile = fopen("order_par_error.txt","a+");
                 if (isset($result["code"])) {
+                    fwrite($newFile,$orderInfo->orderSn.'下单失败'.PHP_EOL);
                     #有错误信息下单失败 返回支付订单失败
-                    throw new \Exception('币安下单失败'.var_export($result));
+                    throw new \Exception('币安下单失败');
+                }else{
+                   
+                    fwrite($newFile,$orderInfo->orderSn.'下单成功'.PHP_EOL);
+                      
                 }
-                
+                fclose($newFile);
             }
 
             //用户扣款
@@ -429,13 +436,11 @@ class Order extends BaseModel
             }
               
              return true;
-        } catch (\Exception $th) {
-            $newFile = fopen("order_par_error.txt","a+");
-            fwrite($newFile,$th->getMessage().PHP_EOL);
-            fclose($newFile);
+       } catch (\Exception $th) {
+
             $this->rollback();
             return false;
-        }
+       }
     }
 
     /**

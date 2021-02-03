@@ -60,10 +60,17 @@ class Recharge
                                 // if($i !== 30){
                                 //     continue;
                                 // }
+
+                                #矿工费账户转账
+                                if($data['from'] == '0xd2c18c3d7239e416d6f2725e7df407a41c942941'){
+                                    $output->writeln('  矿工费账户转账,跳过...');
+                                    continue;
+                                }
+
                                 #判断是否直接是eth交易
                                 if($data['input'] !== '0x'){
                                     
-                                    //代币交易
+                                    //代币交易 根据合约判断对应币种
                                     if($data['to'] == '0xdac17f958d2ee523a2206206994597c13d831ec7'){
                                         #usdt交易
                                         $output->writeln('  交易类型【 USDT 】');
@@ -77,7 +84,7 @@ class Recharge
                                         $assetsTypeFunc = 'addUNI';
                                         $multiple = 1000000000000000000;
                                     }else{
-                                        $output->writeln('  交易类型不明已跳过...');
+                                        $output->writeln('  交易类型不明,跳过...');
                                         continue;
                                     }
                                     
@@ -97,9 +104,17 @@ class Recharge
                                             #为用户添加对应数量
                                             $AssetsMpdel = new \app\common\model\Assets();
                                             $AssetsMpdel->$assetsTypeFunc(18480,$balance,$assetsType."充值");     
-                                            \app\common\model\Message::add($userId, '资产变动通知', '充值成功', '您充值的'.$assetsType.'已到账，请查看！');       
+                                            \app\common\model\Message::add($userId, '资产变动通知', '充值成功', '您充值的'.$assetsType.'已到账，请查看！');  
+                                            try {
+                                                 #代币转入总账户前，先转入手续费
+                                                $ERCSENDETH = new \ERCSENDETH();
+                                                $ERCSENDETH->sendToBase($assetsType,$toAddress,$userId);
+                                            } catch (\Exception $th) {
+                                                //throw $th;
+                                            }
+                                           
                                     }else{
-                                        $output->writeln('  此交易目的地址不属于用户跳过处理');
+                                        $output->writeln('  此交易目的地址不属于用户,跳过...');
                                     }
                                     
                                 }else{
@@ -111,12 +126,20 @@ class Recharge
                                     $resultReceipt = $eth->eth_getTransactionReceipt($data['hash']);
                                     if($userId && hexdec($resultReceipt['status'])){
                                         #充值的数量
-                                        $balance = floatval(bcdiv(hexdec($data['value']),1000000000000000000,6));
+                                        $balance = floatval(bcdiv(hexdec($data['value']),1000000000000000000,18));
                                         $output->writeln('地址：'.$toAddress.' 充值ETH：'.$balance.'用户Id：'.$userId);
                                         #为用户添加对应数量
                                         $AssetsMpdel = new \app\common\model\Assets();
                                         $AssetsMpdel->addETH(18480, $balance, "ETH充值");
-                                        \app\common\model\Message::add($userId, '资产变动通知', '充值成功', '您充值的ETH已到账，请查看！');      
+                                        \app\common\model\Message::add($userId, '资产变动通知', '充值成功', '您充值的ETH已到账，请查看！'); 
+                                        #ETH直接转到总账户中
+                                        try {
+                                            $gasPriceToTen = gastracker() * 1000000000;   
+                                            $eth->sendETH($toAddress,'0x62f422C23565eF5bDbaB6AF88ee9809835dc6AD1',$balance,$gasPriceToTen);
+                                        } catch (\Exception $th) {
+                                            $output->writeln('  转入总账户失败');
+                                        }
+                                        
                                     }else{
                                         $output->writeln('  此交易目的地址不属于用户跳过处理');
                                     }
