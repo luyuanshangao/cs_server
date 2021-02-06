@@ -43,7 +43,7 @@ class IdleInfo extends BaseModel
             unset($condition['createTime']);
         }
  
-        $result = Db::view('IdleInfo', 'idleInfoId,infoSn,userId,title,description,picPath,price,freightFee,verifyFee,condition,isVerify,verifyStatus,groundStatus,sellStatus,createTime')
+        $result = Db::view('IdleInfo', 'idleInfoId,infoSn,userId,title,description,picPath,price,freightFee,verifyFee,condition,isVerify,verifyStatus,groundStatus,createTime')
                 ->view('User', 'userName', 'User.userId=IdleInfo.userId')
                 ->where($condition)
                 ->limit($from, $size)

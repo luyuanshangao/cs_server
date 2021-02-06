@@ -102,19 +102,18 @@ class Idle extends Base
 
                 break;
             case 2:
-                # 已卖出
+                # 已卖出 我的订单
                     $IdleDealModel = new IdleDeal();
                     $condition = [
                         'dealStats' => ['in',[0,2,3,4,5,7,8,9]],
                         'sellUserId' => $this->userId,
-                        'del' => 0,
                     ];
                     $total = $IdleDealModel->getCount($condition);
                     $list = $IdleDealModel->getList($condition, $this->from, $this->size, ['dealSn','idleDealId','idleInfoId','dealStats'], 'createTime desc', ['idleInfo']);
                    
                 break;
             case 3:
-                # 已买到
+                # 已买到 我的订单
                     $IdleDealModel = new IdleDeal();
                     $condition = [
                         'buyUserId' => $this->userId,
@@ -122,9 +121,6 @@ class Idle extends Base
                     ];
                     $total = $IdleDealModel->getCount($condition);
                     $list = $IdleDealModel->getList($condition, $this->from, $this->size, ['dealSn','idleDealId','idleInfoId','dealStats'], 'createTime desc', ['idleInfo']);
-
-                 
-                 
 
                 break;
             case 4:
@@ -601,7 +597,7 @@ class Idle extends Base
 
 
     /**
-     * @name: 创建deal  购买
+     * @name: 创建订单deal  购买
      * @author: gz
      * @description:
      * @param {*}
@@ -626,7 +622,7 @@ class Idle extends Base
     }
 
     /**
-     * @name:        支付Deal
+     * @name:        支付订单Deal
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -669,9 +665,13 @@ class Idle extends Base
         if (bccomp($userAssets['amount'], $dealInfo->price, 10) !== 1) {
             return show(1027);
         }
-        
+                    
+       $IdleInfoSkuStockInfo = IdleInfoSkuStock::get(['skuStockId'=>$dealInfo['skuStockId']]);
+       if($IdleInfoSkuStockInfo['stock'] <=0){
+           return show(0,[],'库存不足');
+       }
         //支付
-        $result = $IdleDealModel->payDeal($this->userId, $dealInfo);
+        $result = $IdleDealModel->payDeal($this->userId, $dealInfo,$IdleInfoSkuStockInfo);
 
 
         if (!$result) {
@@ -681,7 +681,7 @@ class Idle extends Base
     }
     
     /**
-     * @name:        确认Deal
+     * @name:        Deal订单确认收货
      * @author:      gz
      * @description: GET
      * @param        {type}
@@ -707,7 +707,7 @@ class Idle extends Base
     }
 
     /**
-     * @name:        申请退款Deal
+     * @name:        订单Deal申请退款
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -734,7 +734,7 @@ class Idle extends Base
     }
 
         /**
-     * @name:      取消退款Deal
+     * @name:      订单Deal取消退款
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -832,15 +832,15 @@ class Idle extends Base
         $IdleDealInfo->save();
         $AssetsMdeol =  new Assets();
         $AssetsMdeol->addUSDT($IdleDealInfo['buyUserId'], $IdleDealInfo['price'], '闲置申请退款');
-        #闲置信息修改
-        $IdleInfo = IdleInfo::get(['idleInfoId' => $IdleDealInfo->idleInfoId]);
-        $IdleInfo->sellStatus = 0;
-        $IdleInfo->save();
+        #信息修改
+        $IdleInfoSkuStockInfo = IdleInfoSkuStock::get(['skuStockId' => $IdleDealInfo->skuStockId]);
+        $IdleInfoSkuStockInfo->stock += 1;
+        $IdleInfoSkuStockInfo->save();
         return show(1);
     }
 
    /**
-     * @name:     拒绝退款Deal
+     * @name:     拒绝退款
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -866,15 +866,12 @@ class Idle extends Base
         $IdleDealInfo = IdleDeal::get(['idleDealId' => $dataArr['idleDealId'],]);
         $IdleDealInfo->dealStats = 2;
         $IdleDealInfo->save();
-        #闲置信息修改
-        $IdleInfo = IdleInfo::get(['idleInfoId' => $IdleDealInfo->idleInfoId]);
-        $IdleInfo->sellStatus = 1;
-        $IdleInfo->save();
+
         return show(1, $IdleDealInfo);
     }
 
     /**
-     * @name:        取消Deal
+     * @name:        取消订单
      * @author:      gz
      * @description: GET
      * @param        {type}
@@ -1171,7 +1168,6 @@ class Idle extends Base
             'userId' => $getArr['userId'],
             'verifyStatus' => 1,
             'groundStatus' => 1,
-            'sellStatus' => 0,
         ];
         $IdleInfoModel = new IdleInfo();
         $total = $IdleInfoModel->getCount($condition);
@@ -1231,6 +1227,18 @@ class Idle extends Base
         } catch (\Throwable $th) {
             $idleInfo['picArr'] = [];
         }
+        $skuStockInfo = IdleInfoSkuStock::get(['skuStockId'=>$idleDealInfo['skuStockId']]);
+        $skuInfo = [
+            'freight'=>$skuStockInfo['freight'],
+            'pic'=>$skuStockInfo['pic'],
+            'price'=>$skuStockInfo['price'],
+        ];
+        //         'spData'=>[
+        //             ['key'=>'颜色','value'=>'红色',],
+        //             ['key'=>'容量','value'=>'500ml',],
+        //         ],
+        $skuInfo['spData'] = unserialize($skuStockInfo['spData']);
+        
        
         #退款
         $IdleDealRefundData = IdleDealRefund::where(['idleDealId' => $idleDealId,'status' => ['in',[1,2]]])->field(['idleDealRefundId'])->find();
@@ -1271,6 +1279,7 @@ class Idle extends Base
             'createTime' => date("Y-m-d H:i:s", $idleDealInfo['createTime']),
             'addressInfo' => $addressInfo,
             'idleInfo' => $idleInfo,
+            'skuInfo' => $skuInfo,
             'IdleDealRefundData' => $refund,
             'IdleDealDisputeData' => $dispute,
         ];
