@@ -78,10 +78,8 @@ class IdleDeal extends BaseModel
             if ($idleInfo['groundStatus'] !== 1) {
                 throw new \Exception("", 1052);
             }
-            if ($idleInfo['sellStatus'] === 1 || $idleInfo['sellStatus'] === '') {
-                throw new \Exception("", 1052);
-            }
 
+            $skuInfo = IdleInfoSkuStock::get(['skuStockId'=>$data['skuStockId']]);
             //收货地址信息
             $addressObj = UserAddress::get(['addressId' => $addressId,'userId' => $userId]);
        
@@ -97,16 +95,15 @@ class IdleDeal extends BaseModel
                 'sellUserId' => $idleInfo['userId'],
                 'buyUserId' => $userId,
                 'idleInfoId' => $idleInfoId,
+                'skuStockId' => $data['skuStockId'],
                 'addressId' => $addressId,
-                'price' => $idleInfo['price'],
+                'price' => $skuInfo['price'],
                 'remark' => isset($data['remark']) ? $data['remark'] : '',
                 'dealStats' => 1,
                 'createTime' => $createTime
             ];
             $dealOjb = self::create($dataSaveArr);
-            //修改闲置信息状态
-            $idleInfo->sellStatus = 1;
-            $idleInfo->save();
+    
             $this->commit();
             OrderDelayed::addOrderDelayedTask(['userId' => $userId,'idleDealId' => $dealOjb['idleDealId']], ($createTime + 900), 'delDeal');
             OrderDelayed::addOrderDelayedTask(['userId' => $userId,'idleDealId' => $dealOjb['idleDealId']], ($createTime + 600), 'sendDeal');
@@ -117,7 +114,7 @@ class IdleDeal extends BaseModel
         }
     }
     
-    public function payDeal($userId, $dealInfo)
+    public function payDeal($userId, $dealInfo,$IdleInfoSkuStockInfo)
     {
         $idleDealId = $dealInfo['idleDealId'];
         $this->startTrans();
@@ -131,9 +128,9 @@ class IdleDeal extends BaseModel
             $dealInfo->save();
             //提示消息
             Message::add($userId, '资产变动通知', '消费支出', '您消费支出' . $dealInfo->price . 'USDT' . ',请查看！');
-             #恢复idleInfo状态
 
-
+            $IdleInfoSkuStockInfo->stock-=1;
+            $IdleInfoSkuStockInfo->save();
             $this->commit();
             //取消订单redis延时队列
             //['action'=>$action,'time'=>$time,'data' => $data,]
@@ -187,10 +184,7 @@ class IdleDeal extends BaseModel
             $dealInfo->dealStats = 6;
             $dealInfo->save();
             
-            #恢复idleInfo状态
-            $idleInfo = IdleInfo::getDeail($dealInfo['idleInfoId']);
-            $idleInfo->sellStatus = 0;
-            $idleInfo->save();
+
             $this->commit();
             # 清除redis队列中提示
             OrderDelayed::delOrderDelayedTask(
@@ -240,10 +234,7 @@ class IdleDeal extends BaseModel
             $dealInfo->dealStats = 10;
             $dealInfo->save();
             
-            #恢复idleInfo状态
-            $idleInfo = IdleInfo::getDeail($idleInfoId);
-            $idleInfo->sellStatus = 0;
-            $idleInfo->save();
+   
             $this->commit();
             # 清除redis队列中提示
             OrderDelayed::delOrderDelayedTask(
@@ -311,7 +302,7 @@ class IdleDeal extends BaseModel
     public static function onlineNum($userId)
     {
     
-        $onlineNum = IdleInfo::where(['verifyStatus' => 1,'groundStatus' => 1,'sellStatus' => 0,'userId' => $userId])->count();
+        $onlineNum = IdleInfo::where(['verifyStatus' => 1,'groundStatus' => 1,'userId' => $userId])->count();
 
         return $onlineNum;
     }

@@ -99,7 +99,6 @@ class OrderDelayed extends Redis
                           $dealInfo->dealStats = 6;
                           $dealInfo->save();
                           $idleInfo = \app\common\model\IdleInfo::getDeail($dealInfo['idleInfoId']);
-                          $idleInfo->sellStatus = 0;
                           $idleInfo->save();
                           \app\common\model\Message::add($task['data']['userId'], '订单通知', '闲置订单已取消', '闲置订单，已经支付超时，系统已自动为您取消！');
                           

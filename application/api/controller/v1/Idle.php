@@ -16,6 +16,7 @@ use app\common\model\IdleDealRefund;
 use app\common\model\IdleDealDispute;
 use app\common\model\IdleDealDisputeEvidence;
 use app\common\model\UserAddress;
+use app\common\model\IdleInfoSkuStock;
 
 class Idle extends Base
 {
@@ -41,6 +42,13 @@ class Idle extends Base
         }
     }
 
+    /**
+     * @name: 商品列表
+     * @author: gz
+     * @description: 
+     * @param {*}
+     * @return {*}
+     */
     public function list()
     {
 
@@ -49,8 +57,6 @@ class Idle extends Base
         $this->getPageAndSize($getArr);
         $condition = [
             'groundStatus' => 1,
-            'sellStatus' => 0,
-            'del' => 0,
         ];
         
         isset($getArr['search']) ? $condition['title'] = ['like','%' . $getArr['search'] . '%'] : '';
@@ -66,138 +72,8 @@ class Idle extends Base
     }
 
 
-###############################################################################################
     /**
-     * @name: 创建闲置信息
-     * @author: gz
-     * @description:
-     * @param {*}
-     * @return {*}
-     */
-    public function createIdle()
-    {
-
-        $dataArr  = $this->checkdate('Idle', 'post', 'createIdle');
-        $result = IdleInfo::addInfo($this->userId, $dataArr);
-        if (!$result) {
-            return show(0);
-        }
-
-        return show(1, ['infoSn' => $result->infoSn]);
-    }
-
-    /**
-     * @name: 支付审核费
-     * @author: gz
-     * @description:
-     * @param {*}
-     * @return {*}
-     */
-    public function payVerifyFee()
-    {
-        
-        $dataArr  = $this->checkdate('Idle', 'post', 'payVerifyFee');
-
-        #支付密码验证
-        if (!$this->clientInfo->payPassWord) {
-            return show(1019);
-        }
-        if ($this->clientInfo->payPassWord !== setPassword($dataArr['payPassWord'])) {
-            return show(1020);
-        }
-
-        #查询信息是否存在
-        $idleInfo = IdleInfo::getInfoBySn($this->userId, $dataArr['infoSn']);
-        if (!$idleInfo) {
-            return show(1049);
-        }
-
-        #查询钱包余额
-        $AssetsModel = new Assets();
-        $amountUsdt = $AssetsModel->where(['userId' => $this->userId,'assetsType' => 3])->value('amount');
-        if (bccomp($amountUsdt, $this->verifyFee, 10) !== 1) {
-            return show(1027);
-        }
-        try {
-            #扣除审核金
-            $AssetsModel->costUSDT($this->userId, $this->verifyFee, '支付审核金');
-
-            #修改信息状态
-            $idleInfo->isVerify = 1;
-            $idleInfo->verifyFee = $this->verifyFee;
-            $idleInfo->save();
-        } catch (\Exception $th) {
-            return show(0);
-        }
-        return show(1);
-    }
-
-    /**
-     * @name: 取消闲置的审核
-     * @author: gz
-     * @description:
-     * @param {*}
-     * @return {*}
-     */
-    public function cacalIdle()
-    {
-
-        $getArr  = $this->checkdate('Idle', 'get', 'cacalIdle');
-
-        #查询信息是否存在
-        $idleInfo = IdleInfo::getInfoBySn($this->userId, $getArr['infoSn']);
-        if (!$idleInfo) {
-            return show(0);
-        }
-
-        #是否在审核中
-        if ($idleInfo['verifyStatus'] != 0) {
-            return show(0);
-        }
-
-        #是否支付
-        $result = IdleInfo::isVerify($idleInfo['idleInfoId']);
-       
-        if ($result) {
-           #可以取消审核
-            IdleInfo::cacalVerify($idleInfo['idleInfoId']);
-            $idleInfo->verifyStatus = -1;
-            $idleInfo->save();
-           #退审核金
-            $AssetsModel = new Assets();
-            $AssetsModel->addUSDT($this->userId, $this->verifyFee, '退还审核金');
-        }
-
-        return show(1);
-    }
-
-   /**
-     * @name: 删除闲置信息
-     * @author: gz
-     * @description:
-     * @param {*}
-     * @return {*}
-     */
-    public function deleteIdleInfo()
-    {
-        $getArr  = $this->checkdate('Idle', 'get', 'deleteIdleInfo');
-        $infoSn = $getArr['infoSn'];
-
-        #查询信息是否存在
-        $idleInfo = IdleInfo::getInfoBySn($this->userId, $infoSn);
-        if (!$idleInfo) {
-            return show(0);
-        }
-        # verifyStatus是否 审核中 和 审核成功
-        if ($idleInfo['verifyStatus'] == 0 || $idleInfo['verifyStatus'] == 1) {
-            return show(0);
-        }
-        $idleInfo->update(['del' => 1], ['infoSn' => $infoSn]);
-        return show(1);
-    }
-
-    /**
-     * @name: 闲置列表
+     * @name: 商品管理列表
      * @author: gz
      * @description:
      * @param {*}
@@ -218,29 +94,26 @@ class Idle extends Base
         switch ($getArr['type']) {
             case 1:
                 #已发布列表
-                    
                     $condition = [
                         'userId' => $this->userId,
-                        'del' => 0,
                     ];
                     $total = $IdleInfoModel->getCount($condition);
                     $list = $IdleInfoModel->getList($condition, $this->from, $this->size, true, 'createTime desc', ['collectNum','views','picArr','frontCode']);
 
                 break;
             case 2:
-                # 已卖出
+                # 已卖出 我的订单
                     $IdleDealModel = new IdleDeal();
                     $condition = [
                         'dealStats' => ['in',[0,2,3,4,5,7,8,9]],
                         'sellUserId' => $this->userId,
-                        'del' => 0,
                     ];
                     $total = $IdleDealModel->getCount($condition);
                     $list = $IdleDealModel->getList($condition, $this->from, $this->size, ['dealSn','idleDealId','idleInfoId','dealStats'], 'createTime desc', ['idleInfo']);
                    
                 break;
             case 3:
-                # 已买到
+                # 已买到 我的订单
                     $IdleDealModel = new IdleDeal();
                     $condition = [
                         'buyUserId' => $this->userId,
@@ -248,9 +121,6 @@ class Idle extends Base
                     ];
                     $total = $IdleDealModel->getCount($condition);
                     $list = $IdleDealModel->getList($condition, $this->from, $this->size, ['dealSn','idleDealId','idleInfoId','dealStats'], 'createTime desc', ['idleInfo']);
-
-                 
-                 
 
                 break;
             case 4:
@@ -288,91 +158,82 @@ class Idle extends Base
     }
 
 
+
+
+###############################################################################################
     /**
-     * @name: 编辑闲置信息
+     * @name: 创建商品信息
      * @author: gz
      * @description:
      * @param {*}
      * @return {*}
      */
-    public function editIdleInfo()
+    public function createIdle()
     {
-        $dataArr  = $this->checkdate('Idle', 'post', 'editIdleInfo');
 
-        #查询信息是否存在
-        $idleInfoId = $dataArr['idleInfoId'];
-        unset($dataArr['idleInfoId']);
-        $IdleInfo = IdleInfo::getInfo($this->userId, $idleInfoId);
-        if (!$IdleInfo) {
-            return show(0);
+        // $sku = [
+        //     [
+        //         'price'=>'12',
+        //         'pic'=>'/uploads/idleImg/20210106/a931128f7644276c9d0dc06b9ea129bf.JPG',
+        //         'stock'=>'11',
+        //         'freight'=>'11',
+        //         'spData'=>[
+        //             ['key'=>'颜色','value'=>'红色',],
+        //             ['key'=>'容量','value'=>'500ml',],
+        //         ],
+                
+            
+        //     ],
+        //     [
+        //         'price'=>'24',
+        //         'pic'=>'/uploads/idleImg/20210106/a931128f7644276c9d0dc06b9ea129bf.JPG',
+        //         'stock'=>'24',
+        //         'freight'=>'13',
+        //         'spData'=>[
+        //             ['key'=>'颜色','value'=>'红色'],
+        //             ['key'=>'容量','value'=>'1000ml',],
+        //         ],
+                
+            
+        //     ],
+        //     [
+        //         'price'=>'15',
+        //         'pic'=>'/uploads/idleImg/20210106/a931128f7644276c9d0dc06b9ea129bf.JPG',
+        //         'stock'=>'12',
+        //         'freight'=>'13',
+        //         'spData'=>[
+        //             ['key'=>'颜色','value'=>'绿色'],
+        //             ['key'=>'容量','value'=>'500ml',],
+        //         ],
+                
+            
+        //     ],
+        //     [
+        //         'price'=>'30',
+        //         'pic'=>'/uploads/idleImg/20210106/a931128f7644276c9d0dc06b9ea129bf.JPG',
+        //         'stock'=>'12',
+        //         'freight'=>'13',
+        //         'spData'=>[
+        //             ['key'=>'颜色','value'=>'绿色'],
+        //             ['key'=>'容量','value'=>'1000ml',],
+        //         ],
+                
+            
+        //     ],
+            
+        // ];
+        // return json($sku);die;
+        $dataArr  = $this->checkdate('Idle', 'post', 'createIdle');
+        $result = IdleInfo::addInfo($this->userId, $dataArr);
+   
+        if (!$result) {
+            return show(0,[],'创建失败');
         }
-        #上架中不能编辑
-        if ($IdleInfo->groundStatus === 1) {
-            return show(0);
-        }
-
-        $IdleInfo->title = $dataArr['title'];
-        $IdleInfo->description = $dataArr['description'];
-        $IdleInfo->price = $dataArr['price'];
-        $IdleInfo->condition = $dataArr['condition'];
-        if ($IdleInfo->groundStatus === 0) {
-            $IdleInfo->isVerify = 0;
-            $IdleInfo->verifyStatus = 0;
-        }
-        $picArr = json_decode($dataArr['picPath'], true);
-        count($picArr) > 0
-        ? $IdleInfo->picPath = implode(',', $picArr)
-        : '';
-        $IdleInfo->save();
-
         return show(1);
     }
 
-    /**
-     * @name: 下架闲置信息
-     * @author: gz
-     * @description:
-     * @param {*}
-     * @return {*}
-     */
-    public function downIdleInfo()
-    {
-        $getArr  = $this->checkdate('Idle', 'post', 'downIdleInfo');
-        $idleInfoId = $getArr['idleInfoId'];
-        $idleInfo = IdleInfo::get(['userId' => $this->userId,'idleInfoId' => $idleInfoId]);
-        if ($idleInfo['verifyStatus'] === 1 && $idleInfo['groundStatus'] === 1) {
-            IdleInfo::upGround($idleInfoId, 0);
-        }
-        return show(1);
-    }
-    
-    /**
-     * @name: 重新上架闲置信息
-     * @author: gz
-     * @description:
-     * @param {*}
-     * @return {*}
-     */
-    public function aginIdleInfo()
-    {
-        $getArr  = $this->checkdate('Idle', 'post', 'aginIdleInfo');
-        $idleInfoId = $getArr['idleInfoId'];
-        $idleInfo = IdleInfo::get(['userId' => $this->userId,'idleInfoId' => $idleInfoId]);
-        if (!$idleInfo) {
-            return show(0);
-        }
-        #判断是否重新支付审核金
-        $isVerify = IdleInfo::isIsVerify($this->userId, $idleInfoId);
-        if (!$isVerify) {
-            return show(1047);
-        }
-        $idleInfo->groundStatus = 1;
-        $idleInfo->createTime = time(); //更新时间
-        $idleInfo->save();
-        return show(1);
-    }
 
-    /**
+   /**
      * @name: 是否需要拉起支付
      * @author: gz
      * @description:
@@ -391,7 +252,194 @@ class Idle extends Base
         return show(1, ['true' => $code]);
     }
 
+
+   /**
+     * @name: 支付审核费
+     * @author: gz
+     * @description:
+     * @param {*}
+     * @return {*}
+     */
+    public function payVerifyFee()
+    {
+        
+        $dataArr  = $this->checkdate('Idle', 'post', 'payVerifyFee');
+
+        #支付密码验证
+        if (!$this->clientInfo->payPassWord) {
+            return show(1019);
+        }
+        if ($this->clientInfo->payPassWord !== setPassword($dataArr['payPassWord'])) {
+            return show(1020);
+        }
+
+        #查询信息是否存在
+        $idleInfo = IdleInfo::getInfoById($this->userId, $dataArr['idleInfoId']);
+        if (!$idleInfo) {
+            return show(1049);
+        }
+
+        #查询钱包余额
+        $AssetsModel = new Assets();
+        $amountUsdt = $AssetsModel->where(['userId' => $this->userId,'assetsType' => 3])->value('amount');
+        if (bccomp($amountUsdt, $this->verifyFee, 10) !== 1) {
+            return show(1027);
+        }
+        try {
+            #扣除审核金
+            $AssetsModel->costUSDT($this->userId, $this->verifyFee, '支付审核金');
+
+            #修改信息状态
+            $idleInfo->isVerify = 1;
+            $idleInfo->verifyFee = $this->verifyFee;
+            $idleInfo->save();
+        } catch (\Exception $th) {
+            return show(0);
+        }
+        return show(1);
+    }
+
+
+    /**
+     * @name: 下架
+     * @author: gz
+     * @description:
+     * @param {*}
+     * @return {*}
+     */
+    public function downIdleInfo()
+    {
+        $dataArr  = $this->checkdate('Idle', 'post', 'downIdleInfo');
+        $idleInfoId = $dataArr['idleInfoId'];
+        $idleInfo = IdleInfo::get(['userId' => $this->userId,'idleInfoId' => $idleInfoId]);
+        if ($idleInfo['verifyStatus'] === 1 && $idleInfo['groundStatus'] === 1) {
+            IdleInfo::upGround($idleInfoId, 0);
+        }
+        return show(1);
+    }
+
     
+
+    /**
+     * @name: 编辑
+     * @author: gz
+     * @description:
+     * @param {*}
+     * @return {*}
+     */
+    public function editIdleInfo()
+    {
+        $dataArr  = $this->checkdate('Idle', 'post', 'editIdleInfo');
+
+        #查询信息是否存在
+        $IdleInfo = IdleInfo::getInfo($this->userId,$dataArr['idleInfoId']);
+        if (!$IdleInfo) {
+            return show(0,[],'编辑失败');
+        }
+        #上架中不能编辑
+        if ($IdleInfo->groundStatus === 1) {
+            return show(0,[],'编辑失败');
+        }
+        $result = IdleInfo::updateInfo($IdleInfo,$dataArr);
+        if (!$result) {
+            return show(0,[],'编辑失败');
+        }
+        return show(1);
+    }
+
+
+    /**
+     * @name: 重新上架
+     * @author: gz
+     * @description:
+     * @param {*}
+     * @return {*}
+     */
+    public function aginIdleInfo()
+    {
+        $dataArr  = $this->checkdate('Idle', 'post', 'aginIdleInfo');
+        $idleInfoId = $dataArr['idleInfoId'];
+        $idleInfo = IdleInfo::get(['userId' => $this->userId,'idleInfoId' => $idleInfoId]);
+        if (!$idleInfo) {
+            return show(0);
+        }
+        #判断是否重新支付审核金
+        $isVerify = IdleInfo::isIsVerify($this->userId, $idleInfoId);
+        if (!$isVerify) {
+            return show(1047);
+        }
+        $idleInfo->groundStatus = 1;
+        $idleInfo->createTime = time(); //更新时间
+        $idleInfo->save();
+        return show(1);
+    }
+
+
+   /**
+     * @name: 删除闲置信息
+     * @author: gz
+     * @description:
+     * @param {*}
+     * @return {*}
+     */
+    public function deleteIdleInfo()
+    {
+        $dataArr  = $this->checkdate('Idle', 'post', 'deleteIdleInfo');
+        $idleInfoId = $dataArr['idleInfoId'];
+
+        #查询信息是否存在
+        $idleInfo = IdleInfo::getInfoById($this->userId, $idleInfoId);
+        if (!$idleInfo) {
+            return show(0);
+        }
+        # verifyStatus是 2
+        if ($idleInfo['verifyStatus'] == 2) {
+            return show(0);
+        }
+        $idleInfo->delete();
+        return show(1);
+    }
+
+
+    /**
+     * @name: 取消闲置的审核
+     * @author: gz
+     * @description:
+     * @param {*}
+     * @return {*}
+     */
+    public function cacalIdle()
+    {
+
+        $getArr  = $this->checkdate('Idle', 'get', 'cacalIdle');
+
+        #查询信息是否存在
+        $idleInfo = IdleInfo::getInfoById($this->userId, $getArr['idleInfoId']);
+        if (!$idleInfo) {
+            return show(0);
+        }
+
+        #是否在审核中
+        if ($idleInfo['verifyStatus'] != 0) {
+            return show(0);
+        }
+
+        #是否支付
+        $result = IdleInfo::isVerify($idleInfo['idleInfoId']);
+       
+        if ($result) {
+           #可以取消审核
+            IdleInfo::cacalVerify($idleInfo['idleInfoId']);
+            $idleInfo->verifyStatus = -1;
+            $idleInfo->save();
+           #退审核金
+            $AssetsModel = new Assets();
+            $AssetsModel->addUSDT($this->userId, $this->verifyFee, '退还审核金');
+        }
+
+        return show(1);
+    }
+
 
 
      ########################################################################################################
@@ -416,25 +464,29 @@ class Idle extends Base
         if (!$IdleInfo) {
             return $returnData;
         }
-     
+        $skuData = IdleInfoSkuStock::skuDecr( $IdleInfo['idleInfoId']);
+   
         #闲置信息
         try {
             $pic = explode(',', $IdleInfo['picPath']);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             $pic = '';
+        }
+        try {
+            $desPic = explode(',', $IdleInfo['desPicPath']);
+        } catch (\Exception $th) {
+            $desPic = '';
         }
         
         $idleInfo = [
             'idleInfoId' => $IdleInfo['idleInfoId'],
             'title' => $IdleInfo['title'],
             'description' => $IdleInfo['description'],
-            'picPath' => $IdleInfo['picPath'],
+            'desPicPath'=>$desPic,
             'picArr' => $pic,
-            'price' => $IdleInfo['price'],
-            'condition' => $IdleInfo['condition'],
             'releaseser' => $IdleInfo['userId'] == $this->userId ? 1 : 0 ,
         ];
- 
+        
         #用户信息
         $userData = User::get([
             'userId' => $IdleInfo['userId']
@@ -445,45 +497,7 @@ class Idle extends Base
             'selNum' => IdleDeal::sellNum($userData['userId']),
         ];
 
-        // #留言信息 第一层+第二层共取5条
-        // $num = 0;
-        // $IdleMessageModel = new IdleMessage();
-       
-        // $messageList = $IdleMessageModel->where([
-        //     'idleInfoId' => $IdleInfo['idleInfoId']
-        // ])->order('createTime desc')->column('messageId,idleInfoId,userId,content,createTime');
-      
-        // if ($messageList) {
-        //     $IdleMessageSonModel = new IdleMessageSon();
-           
-        //     foreach ($messageList as $key => &$message) {
-               
-        //         $message['messageSonList']=  [];
-               
 
-        //         $message['userName'] = User::where(['userId' => $message['userId']])->value('userName');
-        //         $message['timeWord'] = wordTime($message['createTime']);
-        //         $messageSonList = $IdleMessageSonModel->where(['messageId' => $message['messageId']])->order('createTime desc')->column('messageId,userId,toUserId,content,createTime', 'messageSonId');
-        //         $num = $num + 1;
-        //         if ($num > 5) {
-        //             break;
-        //         }
-        //         foreach ($messageSonList as $key => &$messageSon) {
-        //             $num = $num + 1;
-        //             if ($num > 5) {
-        //                 break 2;
-        //             }
-        //             $messageSon['userName'] = User::where(['userId' => $messageSon['userId']])->value('userName');
-                   
-        //             $messageSon['timeWord'] = wordTime($messageSon['createTime']);
-        //             $messageSon['toUserName'] = User::where(['userId' => $messageSon['toUserId']])->value('userName');
-                   
-        //             $message['messageSonList'][]= $messageSon;
-                   
-        //         }
-        //     }
-        // }
-        // $messages = IdleMessage::orderTime($messageList);
         
         $IdleMessageModel = new IdleMessage();
         $condition = [
@@ -498,6 +512,7 @@ class Idle extends Base
         $returnData  = [
             'userData' => $userInfo,
             'idleData' => $idleInfo,
+            'skuData' => $skuData,
             'messageData' => $messages,
             'isColle' => $IdleColleData ? 1 : 0
         ];
@@ -582,7 +597,7 @@ class Idle extends Base
 
 
     /**
-     * @name: 创建deal  购买
+     * @name: 创建订单deal  购买
      * @author: gz
      * @description:
      * @param {*}
@@ -607,7 +622,7 @@ class Idle extends Base
     }
 
     /**
-     * @name:        支付Deal
+     * @name:        支付订单Deal
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -650,9 +665,13 @@ class Idle extends Base
         if (bccomp($userAssets['amount'], $dealInfo->price, 10) !== 1) {
             return show(1027);
         }
-        
+                    
+       $IdleInfoSkuStockInfo = IdleInfoSkuStock::get(['skuStockId'=>$dealInfo['skuStockId']]);
+       if($IdleInfoSkuStockInfo['stock'] <=0){
+           return show(0,[],'库存不足');
+       }
         //支付
-        $result = $IdleDealModel->payDeal($this->userId, $dealInfo);
+        $result = $IdleDealModel->payDeal($this->userId, $dealInfo,$IdleInfoSkuStockInfo);
 
 
         if (!$result) {
@@ -662,7 +681,7 @@ class Idle extends Base
     }
     
     /**
-     * @name:        确认Deal
+     * @name:        Deal订单确认收货
      * @author:      gz
      * @description: GET
      * @param        {type}
@@ -688,7 +707,7 @@ class Idle extends Base
     }
 
     /**
-     * @name:        申请退款Deal
+     * @name:        订单Deal申请退款
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -715,7 +734,7 @@ class Idle extends Base
     }
 
         /**
-     * @name:      取消退款Deal
+     * @name:      订单Deal取消退款
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -813,15 +832,15 @@ class Idle extends Base
         $IdleDealInfo->save();
         $AssetsMdeol =  new Assets();
         $AssetsMdeol->addUSDT($IdleDealInfo['buyUserId'], $IdleDealInfo['price'], '闲置申请退款');
-        #闲置信息修改
-        $IdleInfo = IdleInfo::get(['idleInfoId' => $IdleDealInfo->idleInfoId]);
-        $IdleInfo->sellStatus = 0;
-        $IdleInfo->save();
+        #信息修改
+        $IdleInfoSkuStockInfo = IdleInfoSkuStock::get(['skuStockId' => $IdleDealInfo->skuStockId]);
+        $IdleInfoSkuStockInfo->stock += 1;
+        $IdleInfoSkuStockInfo->save();
         return show(1);
     }
 
    /**
-     * @name:     拒绝退款Deal
+     * @name:     拒绝退款
      * @author:      gz
      * @description: POST
      * @param        {type}
@@ -847,15 +866,12 @@ class Idle extends Base
         $IdleDealInfo = IdleDeal::get(['idleDealId' => $dataArr['idleDealId'],]);
         $IdleDealInfo->dealStats = 2;
         $IdleDealInfo->save();
-        #闲置信息修改
-        $IdleInfo = IdleInfo::get(['idleInfoId' => $IdleDealInfo->idleInfoId]);
-        $IdleInfo->sellStatus = 1;
-        $IdleInfo->save();
+
         return show(1, $IdleDealInfo);
     }
 
     /**
-     * @name:        取消Deal
+     * @name:        取消订单
      * @author:      gz
      * @description: GET
      * @param        {type}
@@ -1152,7 +1168,6 @@ class Idle extends Base
             'userId' => $getArr['userId'],
             'verifyStatus' => 1,
             'groundStatus' => 1,
-            'sellStatus' => 0,
         ];
         $IdleInfoModel = new IdleInfo();
         $total = $IdleInfoModel->getCount($condition);
@@ -1212,6 +1227,18 @@ class Idle extends Base
         } catch (\Throwable $th) {
             $idleInfo['picArr'] = [];
         }
+        $skuStockInfo = IdleInfoSkuStock::get(['skuStockId'=>$idleDealInfo['skuStockId']]);
+        $skuInfo = [
+            'freight'=>$skuStockInfo['freight'],
+            'pic'=>$skuStockInfo['pic'],
+            'price'=>$skuStockInfo['price'],
+        ];
+        //         'spData'=>[
+        //             ['key'=>'颜色','value'=>'红色',],
+        //             ['key'=>'容量','value'=>'500ml',],
+        //         ],
+        $skuInfo['spData'] = unserialize($skuStockInfo['spData']);
+        
        
         #退款
         $IdleDealRefundData = IdleDealRefund::where(['idleDealId' => $idleDealId,'status' => ['in',[1,2]]])->field(['idleDealRefundId'])->find();
@@ -1252,6 +1279,7 @@ class Idle extends Base
             'createTime' => date("Y-m-d H:i:s", $idleDealInfo['createTime']),
             'addressInfo' => $addressInfo,
             'idleInfo' => $idleInfo,
+            'skuInfo' => $skuInfo,
             'IdleDealRefundData' => $refund,
             'IdleDealDisputeData' => $dispute,
         ];
