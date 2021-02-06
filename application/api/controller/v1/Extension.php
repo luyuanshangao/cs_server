@@ -334,7 +334,7 @@ class Extension extends Base
             'isExtension' => $isExtension,
             'extensionName' => ExtensionUser::extensionName($this->userId),
             'speed' => 1,
-            'diff'=>'',
+            'diff' => '',
             'extensionId' => 0,
             'directCount' => 0,
             'amount' => 0,
@@ -379,7 +379,7 @@ class Extension extends Base
                         
                         $dealCount = ExtensionDeal::where($conditionDire)->count();
                         $returnData['diff'] = 10 - $dealCount;
-                case 3:
+                    case 3:
                         //10 个初级
                         $conditionDire = [
                             'superiorId' => $this->userId,
@@ -392,21 +392,21 @@ class Extension extends Base
                         $primaryNum = ExtensionUser::where($conditionPrimary)->count();
                         $returnData['diff'] = 10 - $primaryNum;
 
-                case 4:
-                    $returnData['amount'] = $amountInfo['amount'];
-                    $returnData['alowAmount'] = $amountInfo['alowAmount'];
-                    $returnData['lockAmount'] = $amountInfo['lockAmount'];
+                    case 4:
+                        $returnData['amount'] = $amountInfo['amount'];
+                        $returnData['alowAmount'] = $amountInfo['alowAmount'];
+                        $returnData['lockAmount'] = $amountInfo['lockAmount'];
                         //10 个高级
                         $conditionDire = [
                             'superiorId' => $this->userId,
                         ];
                         $directUserIds = ExtensionInvitation::where($conditionDire)->column('userId');
-                    $conditionSenior = [
+                        $conditionSenior = [
                         'extensionId' => 4,
                         'userId' => ['in', $directUserIds],
-                    ];
-                    $seniorNum = ExtensionUser::where($conditionSenior)->count();
-                    $returnData['diff'] = 10 - $seniorNum;
+                        ];
+                        $seniorNum = ExtensionUser::where($conditionSenior)->count();
+                        $returnData['diff'] = 10 - $seniorNum;
                     break;
                 case 5: //荣耀值
                     $returnData['amount'] = $amountInfo['amount']; //bcmul($amountInfo['amount'], '100', config('app.usdt_float_num'));
@@ -419,11 +419,11 @@ class Extension extends Base
                 default:
                     break;
             }
-            $returnData['diff'] < 0 ? $returnData['diff'] == 0:''; 
+            $returnData['diff'] < 0 ? $returnData['diff'] == 0 : '';
             $returnData['reward'] = [
-                'amount'=>0,
-                'assetsType'=>'',
-                'alert'=>0
+                'amount' => 0,
+                'assetsType' => '',
+                'alert' => 0
             ];
             //等级奖励
             if ($extensionId == 4) {
@@ -445,7 +445,7 @@ class Extension extends Base
                     $returnData['reward']['assetsType'] = $assetsType;
                     $returnData['reward']['alert'] = 1;
                 }
-            }elseif ($extensionId == 5) {
+            } elseif ($extensionId == 5) {
                 $rewardAmount = 1; //奖励金额
                 $assetsType = 1;   //奖励金额类型
 

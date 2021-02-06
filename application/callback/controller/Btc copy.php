@@ -50,8 +50,8 @@ class Btc extends Controller
         $tradeInfo = $bitcoinLib->tradeInfo($txid);
         try {
             //存储txid
-            $newFile = fopen("txid.txt","a+");
-            fwrite($newFile,$txid.' | '.$tradeInfo["result"]["confirmations"].PHP_EOL);
+            $newFile = fopen("txid.txt", "a+");
+            fwrite($newFile, $txid . ' | ' . $tradeInfo["result"]["confirmations"] . PHP_EOL);
             fclose($newFile);
         } catch (\Exception $th) {
             fclose($newFile);
@@ -93,7 +93,6 @@ class Btc extends Controller
             
             //记录订单信息
             $this->bitcoin->add($txid, $address, $amount, $tradeInfo["result"]["confirmations"]);
-            
         } else {
             /*
              * 确认次数大于6

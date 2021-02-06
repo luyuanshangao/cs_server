@@ -10,9 +10,9 @@ class BitcoinQueue extends Controller
     function __construct(Request $request = null)
     {
         parent::__construct($request);
-        
     }
-    public function index(){
+    public function index()
+    {
         vendor("BitcoinLib");
         $bitcoin = new \BitcoinLib();
         $response = $bitcoin->loadwallet();

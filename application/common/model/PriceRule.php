@@ -28,7 +28,7 @@ class PriceRule extends BaseModel
         //$pricePercent = ceil($price *(1 + $percent / 100) );
         //商品增加收益后的价格(USDT)售价
         $incPrice = $price * (1 + $percent / 100);
-        $usdtPricePercent = ceil($incPrice / ($rate-0.03) * 100) / 100;
+        $usdtPricePercent = ceil($incPrice / ($rate - 0.03) * 100) / 100;
         return [
             'oldUsdtPrice' => $oldUsdtPrice,
             'percent' => $percent,

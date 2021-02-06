@@ -56,7 +56,7 @@ class User extends Base
         $this->getPageAndSize($data);
         $condition = $this->filterParam(['userId','userName','userLv','createTime'], $data);
        
-        if (isset($condition['userLv']) && $condition['userLv'] !=='') {
+        if (isset($condition['userLv']) && $condition['userLv'] !== '') {
             switch ($condition['userLv']) {
                 case 0:
                         $userIds = ExtensionUser::where([])->column('userId');

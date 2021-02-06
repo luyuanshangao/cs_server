@@ -20,11 +20,14 @@ class Home extends Controller
         vendor("Eth");
         $eth = new \Eth();
         $resultReceipt = $eth->eth_getTransactionReceipt('0xb8d5068764abe038260b3affd77b55c02ce5cc7f3641ae4b86c4d9fdd82c104d');
-        var_export($resultReceipt);die;
+        var_export($resultReceipt);
+        die;
         //'0xb8d5068764abe038260b3affd77b55c02ce5cc7f3641ae4b86c4d9fdd82c104d',
-       $eth_gasPrice = $eth->eth_gasPrice();
-     var_export($eth->eth_estimateGas('0xd2c18c3d7239e416d6f2725e7df407a41c942941','0x955b9FB52736880592a0C3387cb970a52c7f3230',$eth_gasPrice, "0x" . dechex(0.0012 * 1000000000 * 1000000000) ));die;
-     var_export($eth->eth_getTransactionReceipt('0x43fb9e77e93367b306354944393017f53208f40e01a0e5a1da6040d3dbe28603'));die;
+        $eth_gasPrice = $eth->eth_gasPrice();
+        var_export($eth->eth_estimateGas('0xd2c18c3d7239e416d6f2725e7df407a41c942941', '0x955b9FB52736880592a0C3387cb970a52c7f3230', $eth_gasPrice, "0x" . dechex(0.0012 * 1000000000 * 1000000000)));
+        die;
+        var_export($eth->eth_getTransactionReceipt('0x43fb9e77e93367b306354944393017f53208f40e01a0e5a1da6040d3dbe28603'));
+        die;
         
         //$eth_syncing = $eth->eth_getTransactionByHash('0xb8d5068764abe038260b3affd77b55c02ce5cc7f3641ae4b86c4d9fdd82c104d');
         
@@ -36,7 +39,8 @@ class Home extends Controller
         $getBalanceOfAddress = $eth->getBalanceOfAddress('0x955b9FB52736880592a0C3387cb970a52c7f3230');
         var_export($getBalanceOfAddress);
         $getBalanceOfAddress = $eth->getBalanceOfAddress('0xd2c18c3d7239e416d6f2725e7df407a41c942941');
-        var_export($getBalanceOfAddress);die();
+        var_export($getBalanceOfAddress);
+        die();
         // $eth_accounts = $eth->eth_accounts();
         // $eth_gasPrice = $eth->eth_gasPrice();
         // $eth_blockNumber = $eth->eth_blockNumber();
@@ -52,12 +56,8 @@ class Home extends Controller
 
         // var_dump($token->decimals());
         // var_dump($token->symbol());
-        var_dump($token->balanceOf('0x955b9FB52736880592a0C3387cb970a52c7f3230')); 
+        var_dump($token->balanceOf('0x955b9FB52736880592a0C3387cb970a52c7f3230'));
         die();
-        
-
-    
-       
     }
 
   /**

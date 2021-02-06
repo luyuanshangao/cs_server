@@ -94,10 +94,9 @@ class User extends BaseModel
 
                 //添加红包助力验证
                 
-                RedpacketHelp::addHelpVerify($result->userId,$userArr['superiorId']);
-               
+                RedpacketHelp::addHelpVerify($result->userId, $userArr['superiorId']);
             }
-            (new Assets)->createWallet($result->userId);
+            (new Assets())->createWallet($result->userId);
              //注册消息
              Message::add($result->userId, '系统通知', '欢迎加入CoinShop', '欢迎加入CoinShop！我们秉承着为您提供最好的购物体验!');
              $this->commit();
@@ -193,11 +192,13 @@ class User extends BaseModel
         $list = $this->field(['ethAddress','userId'])->select();
         return $list;
     }
-    public static function userEthAddre(){
-        return self::where(['payPassWord'=>['neq','']])->column('ethAddress','userId');
+    public static function userEthAddre()
+    {
+        return self::where(['payPassWord' => ['neq','']])->column('ethAddress', 'userId');
     }
-    public static function userAddre(){
-        return self::where(['payPassWord'=>['neq','']])->column('userId,userName,ethAddress,address','userId');
+    public static function userAddre()
+    {
+        return self::where(['payPassWord' => ['neq','']])->column('userId,userName,ethAddress,address', 'userId');
     }
     /**
      * 通过btc钱包地址获取用户ID

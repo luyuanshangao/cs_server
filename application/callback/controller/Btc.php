@@ -50,8 +50,8 @@ class Btc extends Controller
         $tradeInfo = $bitcoinLib->tradeInfo($txid);
         try {
             //存储txid
-            $newFile = fopen("txid.txt","a+");
-            fwrite($newFile,$txid.' | '.$tradeInfo["result"]["confirmations"].PHP_EOL);
+            $newFile = fopen("txid.txt", "a+");
+            fwrite($newFile, $txid . ' | ' . $tradeInfo["result"]["confirmations"] . PHP_EOL);
             fclose($newFile);
         } catch (\Exception $th) {
             fclose($newFile);
@@ -63,7 +63,6 @@ class Btc extends Controller
         }
 
         if ($tradeInfo["result"]["confirmations"] > 0) {
-
             $bitcoinInfo = $this->bitcoin->getInfoByTxid($txid);
             
             if (!$bitcoinInfo) {
@@ -134,17 +133,13 @@ class Btc extends Controller
                 echo "bitcoinStatus error";
                 die;
             }
-
-            
         } else {
-
-
              //如果回调订单已在记录，完成当次回调
              $isExist = $this->bitcoin->getInfoByTxid($txid);
-             if ($isExist) {
-                 echo "ok";
-                 die;
-             }
+            if ($isExist) {
+                echo "ok";
+                die;
+            }
              
              /*
               * 解析订单信息
@@ -152,16 +147,16 @@ class Btc extends Controller
              $details = $tradeInfo["result"]["details"];
              $address = "";
              $amount = "";
-             for ($i = 0; $i < count($details); $i++) {
-                 if ($details[$i]["category"] == "receive") {
-                     $address = $details[$i]["address"];
-                     $amount = sctonum($details[$i]["amount"], 8);
-                 }
-             }
-             if ($address == "" || $amount == "") {
-                 echo "no address or amount";
-                 die;
-             }
+            for ($i = 0; $i < count($details); $i++) {
+                if ($details[$i]["category"] == "receive") {
+                    $address = $details[$i]["address"];
+                    $amount = sctonum($details[$i]["amount"], 8);
+                }
+            }
+            if ($address == "" || $amount == "") {
+                echo "no address or amount";
+                die;
+            }
              
              //记录订单信息
              $this->bitcoin->add($txid, $address, $amount, $tradeInfo["result"]["confirmations"]);

@@ -357,33 +357,30 @@ class Order extends BaseModel
             #支付币种
 
             $payTypeName = $orderInfo->getData('payTypeName');
-            if($payTypeName !== 'USDT'){
-               
+            if ($payTypeName !== 'USDT') {
                 #拼接交易对信息
-                $symbol = $payTypeName.'USDT';
+                $symbol = $payTypeName . 'USDT';
 
                 #查询当前订单支付币种与USDT的买卖价格
                 $depthList = $binance->depth($symbol);
 
-                #以卖2的价格为币安下单的price  
-                $price = $depthList['asks'][1][0];  
+                #以卖2的价格为币安下单的price
+                $price = $depthList['asks'][1][0];
                 #BTC  $price = 34142.31000000;
                 #ETH  $price = 1332.82000000;
                 #UNI  $price = 17.46400000;
                    
                 #向币安发起订单
-                $result = $binance->order($symbol,'SELL',bcdiv(floatval(bcmul($amount,1000000)),1000000,8),$price);
+                $result = $binance->order($symbol, 'SELL', bcdiv(floatval(bcmul($amount, 1000000)), 1000000, 8), $price);
                 //bcdiv(floatval(bcmul($amount,1000000)),1000000,8)
             //   var_export($amount);die;
-                $newFile = fopen("order_par_error.txt","a+");
+                $newFile = fopen("order_par_error.txt", "a+");
                 if (isset($result["code"])) {
-                    fwrite($newFile,$orderInfo->orderSn.'下单失败'.PHP_EOL);
+                    fwrite($newFile, $orderInfo->orderSn . '下单失败' . PHP_EOL);
                     #有错误信息下单失败 返回支付订单失败
                     throw new \Exception('币安下单失败');
-                }else{
-                   
-                    fwrite($newFile,$orderInfo->orderSn.'下单成功'.PHP_EOL);
-                      
+                } else {
+                    fwrite($newFile, $orderInfo->orderSn . '下单成功' . PHP_EOL);
                 }
                 fclose($newFile);
             }
@@ -436,11 +433,10 @@ class Order extends BaseModel
             }
               
              return true;
-       } catch (\Exception $th) {
-
+        } catch (\Exception $th) {
             $this->rollback();
             return false;
-       }
+        }
     }
 
     /**

@@ -8,7 +8,6 @@ use think\console\Output;
 use app\common\model\User;
 use app\common\model\EthFee;
 
-
 class ConsoleUsdt extends Command
 {
 
@@ -51,7 +50,6 @@ class ConsoleUsdt extends Command
             }
 
             if ($balance > 0) {
-
                 //准备将金额转出
                 // $eth_gasPrice = $eth->eth_gasPrice();
                 // $x_gasPrice = $eth->bchexdec($eth_gasPrice);
@@ -88,11 +86,9 @@ class ConsoleUsdt extends Command
             }
         }
 
-        #多进程处理充值 
+        #多进程处理充值
 
         foreach ($processData as $userId => $value) {
-
-
             foreach ($value as $key => $field) {
                 $$key = $field;
             }
@@ -111,7 +107,6 @@ class ConsoleUsdt extends Command
                 $output->writeln('[ gasPrice：' . $x_gasPrice . ' ]');
    
                 while (true) {
-
                     #确认矿工费到账
                     $resultReceipt = $eth->eth_getTransactionReceipt($transactionHash);
                     ######################################
@@ -120,16 +115,14 @@ class ConsoleUsdt extends Command
                     $output->writeln('[ 矿工费交易结果：' . $resultReceipt . ' ]');
 
                     if ($resultReceipt) {
-
                         try {
                             #解锁账户
                             $eth->unlockAccount($from);
-                            #向总账户转账 
+                            #向总账户转账
                             //var_export(bcdiv($x_gasPrice,pow(10,18)));die;
                             $price =  bcdiv($x_gasPrice, bcpow("10", strval(18), 0), 18);
                             $result = $erc->sendUSDT($from, $to, $balance, $price);
                             if ($result) {
-
                                 #充值
                                 $AssetsMpdel = new \app\common\model\Assets();
                                 $AssetsMpdel->addUSDT($userId, $balance, "USDT充值");
@@ -140,7 +133,6 @@ class ConsoleUsdt extends Command
                                 $output->writeln('[ USDT充值成功：[ userId：' . $userId . ' amount：' . $balance . ' ]');
                                 break;
                             }
-                            
                         } catch (\Exception $th) {
                         }
                     };
@@ -154,7 +146,6 @@ class ConsoleUsdt extends Command
         }
 
         $this->output();
-  
     }
 
     public function output()

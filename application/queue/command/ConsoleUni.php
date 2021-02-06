@@ -8,7 +8,6 @@ use think\console\Output;
 use app\common\model\User;
 use app\common\model\EthFee;
 
-
 class ConsoleUni extends Command
 {
 
@@ -51,7 +50,6 @@ class ConsoleUni extends Command
             }
 
             if ($balance > 0) {
-
                 //准备将金额转出
                 // $eth_gasPrice = $eth->eth_gasPrice();
                 // $x_gasPrice = $eth->bchexdec($eth_gasPrice);
@@ -88,11 +86,9 @@ class ConsoleUni extends Command
             }
         }
 
-        #多进程处理充值 
+        #多进程处理充值
 
         foreach ($processData as $userId => $value) {
-
-
             foreach ($value as $key => $field) {
                 $$key = $field;
             }
@@ -118,16 +114,14 @@ class ConsoleUni extends Command
                     ######################################
                     $output->writeln('[ 矿工费交易结果：' . $resultReceipt . ' ]');
                     if ($resultReceipt) {
-
                         try {
                             #解锁账户
                             $eth->unlockAccount($from);
-                            #向总账户转账 
+                            #向总账户转账
                             //var_export(bcdiv($x_gasPrice,pow(10,18)));die;
                             $price =  bcdiv($x_gasPrice, bcpow("10", strval(18), 0), 18);
                             $result = $erc->sendUNI($from, $to, $balance, $price);
                             if ($result) {
-
                                 #充值
                                 $AssetsMpdel = new \app\common\model\Assets();
                                 $AssetsMpdel->addUNI($userId, $balance, "UNI充值");
@@ -150,7 +144,6 @@ class ConsoleUni extends Command
             $this->workers[$pid] = $process;
         }
         $this->output();
-      
     }
 
     public function output()

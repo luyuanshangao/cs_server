@@ -543,7 +543,7 @@ function gastracker()
     //关闭URL请求
     curl_close($curl);
     //显示获得的数据
-    $content = json_decode($data,true);
+    $content = json_decode($data, true);
     try {
         $result = $content['result']['SafeGasPrice'];
     } catch (\Exception  $th) {
@@ -557,7 +557,7 @@ function gastracker()
 function eth_getBlockTransactionCountByNumber($tag)
 {
 
-    $url = 'https://api.etherscan.io/api?module=proxy&action=eth_getBlockTransactionCountByNumber&tag='.$tag.'&apikey=UX83AVZXV9AYT6NRYMVIQMPB6I6I1D38FV';
+    $url = 'https://api.etherscan.io/api?module=proxy&action=eth_getBlockTransactionCountByNumber&tag=' . $tag . '&apikey=UX83AVZXV9AYT6NRYMVIQMPB6I6I1D38FV';
     //初始化
     $curl = curl_init();
     //设置抓取的url
@@ -571,7 +571,7 @@ function eth_getBlockTransactionCountByNumber($tag)
     //关闭URL请求
     curl_close($curl);
     //显示获得的数据
-    $content = json_decode($data,true);
+    $content = json_decode($data, true);
     try {
         $result = hexdec($content['result']);
     } catch (\Exception  $th) {

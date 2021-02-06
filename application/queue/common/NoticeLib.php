@@ -140,9 +140,9 @@ class NoticeLib
                 $data = GoodsCache::rPopData();
                 $runData = json_decode($data, true);
                 GoodsCache::run($runData);
-                \app\common\library\Log::mylog('swoole','当前剩余:'.$num,'swoole_cache'); 
-            }else{
-                \app\common\library\Log::mylog('swoole','完成缓存队列','swoole_cache'); 
+                \app\common\library\Log::mylog('swoole', '当前剩余:' . $num, 'swoole_cache');
+            } else {
+                \app\common\library\Log::mylog('swoole', '完成缓存队列', 'swoole_cache');
             }
             return;
         } catch (\Exception $th) {

@@ -126,7 +126,7 @@ class Redpacket extends BaseModel
             //查找助力
             $RedpacketHelpData = RedpacketHelp::get([ 'userId' => $userId,
             'helpUserId' => $helpUserId]);
-            if($RedpacketHelpData){
+            if ($RedpacketHelpData) {
                 return;
             }
 
