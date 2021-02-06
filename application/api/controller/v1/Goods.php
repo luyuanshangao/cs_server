@@ -219,7 +219,7 @@ class Goods extends Base
             //用户存在
             $SearchHistory = new SearchHistory();
             $historyObj = $SearchHistory->where(['userId' => $this->userId])->order('searchId desc')->find();
-           
+            
             if ($historyObj) {
                 $keyWords = $historyObj->keyWords;
                 $random = $this->randomSearch($keyWords, $size);

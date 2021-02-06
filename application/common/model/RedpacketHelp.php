@@ -143,8 +143,10 @@ class RedpacketHelp extends BaseModel
 
         if( ($dataRedpacket['num'] - $countHelpNum) <= 10 ){
             # 多邀请验证+助记词验证
-            $verifyType = 2;
-            $intvNum = 1;
+            // $verifyType = 2;
+            // $intvNum = 1;
+            $verifyType = 1;    //暂时去掉助力
+            $intvNum = 0;
         }else{
             # 助记词验证
             $verifyType = 1;

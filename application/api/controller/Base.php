@@ -245,7 +245,7 @@ class Base extends Controller
             $percent = PriceRule::getPricePercent($price);
             $price = $price * (1 + $percent / 100);
             $rate = self::$rate;
-            $usdtPrice = ceil($price / $rate * 100) / 100;
+            $usdtPrice = ceil($price / ($rate-0.03) * 100) / 100;
             return $usdtPrice;
     }
     public static function toRmb($price)

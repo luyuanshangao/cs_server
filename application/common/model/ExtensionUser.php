@@ -18,6 +18,7 @@ class ExtensionUser extends BaseModel
             $dataUser = [
                 'userId' => $userId,
                 'lose' => 0,
+                'extensionId' => 2,    //直接开通就是试用初级
                 'createTime' => time(),
             ];
             //创建用户

@@ -82,6 +82,7 @@ class Binance
     public function getDepth($symbol, $side, $amount)
     {
         $dataInfo = $this->sendCurl("/api/v3/ticker/bookTicker", array("symbol" => $symbol));
+        
         if (!$dataInfo) {
             return false;
         }
@@ -89,9 +90,10 @@ class Binance
             return false;
         }
         if ($side == "SELL") {
-            return $amount * $dataInfo["bidPrice"];
+        
+            return bcmul($amount , $dataInfo["bidPrice"],8);
         } else {
-            return $amount / $dataInfo["bidPrice"];
+            return bcdiv($amount , $dataInfo["bidPrice"],8);
         }
     }
 

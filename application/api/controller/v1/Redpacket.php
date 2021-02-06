@@ -358,6 +358,7 @@ class Redpacket extends Base
     {
         #判断钱包是否有充值
         $assetsDatas = Assets::where(['amount'=>['gt',0]])->find();
+        $assetsDatas = 1;   //暂时修改 没有激活直接可以提现
         if($assetsDatas){
             RedpacketModel::cashAmount($this->userId);
             return show(1);

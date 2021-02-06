@@ -86,11 +86,11 @@ class NoticeLib
                 $msgIdStr  = implode(',', $msgIdArr_3);
                 Vop::delMessage($msgIdStr);
             }
-
+            
             return $messageNum;
         //商品介绍及规格参数变更通知 16
         //赠品促销变更通知 17
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             //throw $th;
         }
     }
@@ -118,7 +118,7 @@ class NoticeLib
         //新订单通知 25
         //售后服务单状态变更 28
         //订单完成通知 31
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             //throw $th;
         }
     }
@@ -140,9 +140,13 @@ class NoticeLib
                 $data = GoodsCache::rPopData();
                 $runData = json_decode($data, true);
                 GoodsCache::run($runData);
+                \app\common\library\Log::mylog('swoole','当前剩余:'.$num,'swoole_cache'); 
+            }else{
+                \app\common\library\Log::mylog('swoole','完成缓存队列','swoole_cache'); 
             }
-            return $num;
-        } catch (\Throwable $th) {
+            return;
+        } catch (\Exception $th) {
+            return;
         }
     }
 

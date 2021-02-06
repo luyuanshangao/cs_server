@@ -39,8 +39,7 @@ class Wallet extends Base
      */
     public function wallet()
     {
-        //初始化用户钱包
-        $this->assets->createWallet($this->userId);
+
         //初始化币安接口
         vendor("Binance");
         $binance = new \Binance();
