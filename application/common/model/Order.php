@@ -425,7 +425,7 @@ class Order extends BaseModel
                 try {
                    //订单记录 等级变化
                     $incPrice = OrderGoods::computeIncPrice($orderInfo->orderId);
-                    ExtensionDeal::createData($userId, $inviData['superiorId'], $orderInfo->orderId, $incPrice);
+                    (new ExtensionDeal())->createData($userId, $inviData['superiorId'], $orderInfo->orderId, $incPrice);
                     (new ExtensionUser())->changeGrade($inviData['superiorId']);
                 } catch (\Exception $th) {
                     //throw $th;

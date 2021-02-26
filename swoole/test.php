@@ -27,80 +27,102 @@ class Test
 
                     $output = new think\console\Output();
                     $output->writeln('-------------------------------------------------------------------------');
-                    //定义接收的
-                    $symbol = 'ETH|BTC';
-                    $amount = 1;
-                    $side = 'BUY';
-                    $userId = 18332;
-                    #允许交易对
-                    $symbolArr = [
-                        'ETH|BTC',
-                        'UNI|BTC',
-                        'BTC|USDT',
-                        'ETH|USDT',
-                        'UNI|USDT',
-                    ];
-                    #判断交易对
-                    if(!in_array($symbol,$symbolArr)){
-                        $output->writeln('交易对非法');
-                        die();
-                    }
-                   
-                    #拆分交易对
-                  
-                    list($assetsType_A, $assetsType_B) = explode('|',$symbol);
-                   
-                    #根据方向判断余额
-                    $assetsModel = new \app\common\model\Assets();
-                    switch ($side) {
-                        case 'SELL':
-                            $assetsAmount = $assetsModel->{'get' . $assetsType_A}($userId);
-                            if (bccomp($assetsAmount, $amount,18)  !== -1) {
-                                $output->writeln('余额不足');
-                                die();
-                            }
-    
-                            break;
-                        case 'BUY':
-                            $assetsAmount = $assetsModel->{'get' . $assetsType_B}($userId);
-                            if (bccomp($assetsAmount, $amount,18)  !== -1) {
-                                $output->writeln('余额不足');
-                                die();
-                            }
-                            break;
 
-                        default:
-                                $output->writeln('方向错误');
-                                die();
-                            break;
-                    }
-                    #币安下单
-                    vendor("Binance");
-                    $binance = new \Binance();
-                    #拼接交易对
-                    $symbol = $assetsType_A . $assetsType_B;
-                    #查询当前订单支付币种与USDT的买卖价格
-                    $depthList = $binance->depth($symbol);
-                    #以卖2的价格为币安下单的price  
-                    $price = $depthList['asks'][1][0]; 
-                    #向币安发起订单
-                    //$result = $binance->order($symbol, $side, bcdiv(floatval(bcmul($amount, 1000000)), 1000000, 8), $price);
-                   
-                   
-                    // if (isset($result["code"])) {
-                    //     $newFile = fopen("quickChange_par_error.txt", "a+");
-                    //     fwrite($newFile, '闪兑下单失败'.$result['msg'] . PHP_EOL);
-                    //     fclose($newFile);
-                    //     $output->writeln('闪兑下单失败');
+
+                    vendor("BitcoinLib");
+                    $bitcoinLib = new \BitcoinLib();
+               
+                    //$response = $bitcoinLib->backupwallet();
+                    //var_export($response);die;
+                    // $response = $bitcoinLib->makeAddress();
+                    // var_export($response);die;
+                  
+                    // $response = $bitcoinLib->getwalletinfo();
+                    // var_export($response);die;
+                    vendor("Eth");
+                    $eth = new \Eth();
+                    $ethAddress = $eth->genPair();var_export($ethAddress);die;
+                    ######################################################################
+
+                    // vendor("Binance");
+                    // $binance = new \Binance();
+                    // $a = $binance->BTC2UNI(1);
+                    // var_export($a);die;
+                    ##############################【闪兑】#################################
+                    // //定义接收的
+                    // $symbol = 'ETH|BTC';
+                    // $amount = 1;
+                    // $side = 'BUY';
+                    // $userId = 18332;
+                    // #允许交易对
+                    // $symbolArr = [
+                    //     'ETH|BTC',
+                    //     'UNI|BTC',
+                    //     'BTC|USDT',
+                    //     'ETH|USDT',
+                    //     'UNI|USDT',
+                    // ];
+                    // #判断交易对
+                    // if(!in_array($symbol,$symbolArr)){
+                    //     $output->writeln('交易对非法');
                     //     die();
                     // }
-                    #手续费设置 0.2%
-                    $commissionPercentage = 0.2;
-                    $obtainAmount = $binance->getDepth($symbol, $side, bcmul($amount,(100-$commissionPercentage)/100,8));
+                   
+                    // #拆分交易对
+                  
+                    // list($assetsType_A, $assetsType_B) = explode('|',$symbol);
+                   
+                    // #根据方向判断余额
+                    // $assetsModel = new \app\common\model\Assets();
+                    // switch ($side) {
+                    //     case 'SELL':
+                    //         $assetsAmount = $assetsModel->{'get' . $assetsType_A}($userId);
+                    //         if (bccomp($assetsAmount, $amount,18)  !== -1) {
+                    //             $output->writeln('余额不足');
+                    //             die();
+                    //         }
+    
+                    //         break;
+                    //     case 'BUY':
+                    //         $assetsAmount = $assetsModel->{'get' . $assetsType_B}($userId);
+                    //         if (bccomp($assetsAmount, $amount,18)  !== -1) {
+                    //             $output->writeln('余额不足');
+                    //             die();
+                    //         }
+                    //         break;
+
+                    //     default:
+                    //             $output->writeln('方向错误');
+                    //             die();
+                    //         break;
+                    // }
+                    // #币安下单
+                    // vendor("Binance");
+                    // $binance = new \Binance();
+                    // #拼接交易对
+                    // $symbol = $assetsType_A . $assetsType_B;
+                    // #查询当前订单支付币种与USDT的买卖价格
+                    // $depthList = $binance->depth($symbol);
+                    // #以卖2的价格为币安下单的price  
+                    // $price = $depthList['asks'][1][0]; 
+                    // #向币安发起订单
+                    // //$result = $binance->order($symbol, $side, bcdiv(floatval(bcmul($amount, 1000000)), 1000000, 8), $price);
+                   
+                   
+                    // // if (isset($result["code"])) {
+                    // //     $newFile = fopen("quickChange_par_error.txt", "a+");
+                    // //     fwrite($newFile, '闪兑下单失败'.$result['msg'] . PHP_EOL);
+                    // //     fclose($newFile);
+                    // //     $output->writeln('闪兑下单失败');
+                    // //     die();
+                    // // }
+                    // #手续费设置 0.2%
+                    // $commissionPercentage = 0.2;
+                    // $obtainAmount = $binance->getDepth($symbol, $side, bcmul($amount,(100-$commissionPercentage)/100,8));
                     
-                    $assetsModel->{'cost'. ($side=='SELL' ? $assetsType_A : $assetsType_B)}($userId, $amount, "闪兑支出");
-                    $assetsModel->{'add'. ($side=='SELL' ? $assetsType_B : $assetsType_A)}($userId, $obtainAmount, "闪兑收入");     
-                    die();
+                    // $assetsModel->{'cost'. ($side=='SELL' ? $assetsType_A : $assetsType_B)}($userId, $amount, "闪兑支出");
+                    // $assetsModel->{'add'. ($side=='SELL' ? $assetsType_B : $assetsType_A)}($userId, $obtainAmount, "闪兑收入");     
+                    // die();
                     ##############################【清除无用分类】#################################
                     // $category = new \app\common\model\Category();
                     // $i = 0;

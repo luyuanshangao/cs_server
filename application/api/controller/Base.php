@@ -29,7 +29,7 @@ class Base extends Controller
      */
     public function __construct()
     {
-        self::$rate =  Rate::where(1)->value('USDRate');
+
         parent::__construct();
         $this->init();
     }
@@ -244,7 +244,7 @@ class Base extends Controller
             !$price ?  $price = 0 : '';
             $percent = PriceRule::getPricePercent($price);
             $price = $price * (1 + $percent / 100);
-            $rate = self::$rate;
+            $rate = Rate::where(1)->value('USDRate');
             $usdtPrice = ceil($price / ($rate - 0.03) * 100) / 100;
             return $usdtPrice;
     }

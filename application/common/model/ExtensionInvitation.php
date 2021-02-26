@@ -37,7 +37,7 @@ class ExtensionInvitation extends BaseModel
     {
 
         $invitUserData = self::get(['userId' => $superiorId]);
-       
+        $invitUserData->startTrans();
         if ($invitUserData) {
             $createData = [
                 'userId' => $userId,
@@ -55,8 +55,12 @@ class ExtensionInvitation extends BaseModel
                 'createTime' => time(),
             ];
         }
-        self::create($createData);
-        (new ExtensionUser())->changeGrade($superiorId);
+        
+        $result = (new ExtensionUser())->changeGrade($superiorId);
+        
+        if($result){
+            self::create($createData);
+        }
         return true;
     }
 

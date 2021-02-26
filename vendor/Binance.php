@@ -51,6 +51,17 @@ class Binance
             return number_format($eth, 8, '.', '');
         }
     }
+    public function USDT2UNI($amount)
+    {
+        $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "UNIUSDT", "limit" => 5));
+        if (isset($dataInfo["code"])) {
+            return false;
+        } else {
+            $rate = $dataInfo["bids"][1][0];
+            $eth = $amount / $rate;
+            return number_format($eth, 8, '.', '');
+        }
+    }
     public function BTC2USDT($amount)
     {
         $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "BTCUSDT", "limit" => 5));
@@ -59,6 +70,18 @@ class Binance
         } else {
             $rate = $dataInfo["bids"][1][0];
             $usdt = $amount * $rate;
+            return number_format($usdt, 4, '.', '');
+        }
+    }
+    public function BTC2UNI($amount)
+    {
+        $dataInfo = $this->sendCurl("/api/v3/depth", array("symbol" => "UNIBTC", "limit" => 5));
+       
+        if (isset($dataInfo["code"])) {
+            return false;
+        } else {
+            $rate = $dataInfo["bids"][1][0];
+            $usdt = $amount / $rate;
             return number_format($usdt, 4, '.', '');
         }
     }

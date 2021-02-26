@@ -46,14 +46,15 @@ class User extends BaseModel
             if (!$btcAddress) {
                 throw new \Exception("Error");
             }
+          
             vendor("Eth");
-            $eth = new \Eth();
+            $eth = new \Eth(); 
             $ethAddress = $eth->genPair();
-           
+       
             if (!$ethAddress) {
                 throw new \Exception("Error");
             }
-            
+     
             //user表数据
             $ip = Request::instance()->ip();
             $walletWordsCreateTime =  WalletWords::where(['walletWords' => $userArr['walletWords']])->value('createTime');

@@ -1,7 +1,9 @@
 <?php
 require('autoload.php');
 
-define('RPC_IP','localhost');
+
+// define('RPC_IP','111.68.4.2');
+define('RPC_IP','127.0.0.1');
 define('RPC_PORT',10123);
 
 require 'ethereum-php/ethereum.php';

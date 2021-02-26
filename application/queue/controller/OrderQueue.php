@@ -385,7 +385,7 @@ class OrderQueue extends Controller
             $Rate  = new  Rate();
             $Rate->updateRate();
             return;
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
         }
     }
 }

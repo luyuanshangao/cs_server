@@ -11,9 +11,9 @@ class ExtensionDeal extends BaseModel
      * @param {type}
      * @return {type}
      */
-    public static function createData($userId, $superiorId, $orderId, $incPrice)
+    public  function createData($userId, $superiorId, $orderId, $incPrice)
     {
-
+        $this->startTrans();
         $data = [
             'userId' => $userId,
             'superiorId' => $superiorId,
@@ -23,7 +23,12 @@ class ExtensionDeal extends BaseModel
             'createTime' => time(),
         ];
         $dealData = self::create($data);
-        self::computedDeal($userId, $superiorId, $dealData['dealId'], $incPrice);
+        $result = self::computedDeal($userId, $superiorId, $dealData['dealId'], $incPrice);
+        if($result){
+            $this->commit();
+        }else{
+            $this->rollback();
+        }
     }
     /**
      * @name: 返回直接邀请的人下单数
@@ -104,7 +109,11 @@ class ExtensionDeal extends BaseModel
     {
        
         #1 直接邀请人(初级，高级) 获得收益
-        $extensionId = ExtensionUser::where(['userId' => $superiorId])->value('extensionId');
+        $ExtensionUser = ExtensionUser::get(['userId' => $superiorId]);
+        if($ExtensionUser['lose']){
+            return false;
+        }
+        $extensionId = $ExtensionUser['extensionId'];
         $exDataFirIncome = Extension::where(['extensionId' => $extensionId])->value('firIncome');
         $exDataFirIncome = bcdiv($exDataFirIncome, '100', config('app.usdt_float_num'));
         switch ($extensionId) {
@@ -160,6 +169,8 @@ class ExtensionDeal extends BaseModel
                     break;
             }
         }
+
+        return true;
     }
 
 

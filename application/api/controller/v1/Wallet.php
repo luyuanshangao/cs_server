@@ -7,6 +7,7 @@ use app\common\model\AssetsDetails;
 use app\common\model\AssetsType;
 use app\common\model\AssetsWithdraw;
 use app\common\model\Message;
+use app\common\model\Rate;
 use app\api\controller\Base;
 
 class Wallet extends Base
@@ -45,7 +46,7 @@ class Wallet extends Base
         $binance = new \Binance();
         //获取资产列表
         $assetsList = $this->assets->assetsTypeList();
-        
+        $rate = Rate::where(1)->value('USDRate');
         //遍历资产并处理
         $assets_data = array();
         $assets_data["USDT"] = 0;
@@ -81,11 +82,13 @@ class Wallet extends Base
                     break;
                 default:
             }
-            $v["rateRMB"] =  bcmul(self::$rate, $v["rateUSD"], config('app.float_num'));
+            
+            $v["rateRMB"] =  bcmul($rate, $v["rateUSD"], config('app.float_num'));
             $assets_data["USDT"] += $v["rateUSD"];
         }
         
-        $assets_data["RMB"] = bcmul(self::$rate, $assets_data["USDT"], config('app.float_num'));
+       // $assets_data["RMB"] = bcmul($rate, $assets_data["USDT"], config('app.float_num'));
+        $assets_data["USDT"] = $assets_data["USDT"];
         $assets_data["BTC"] =  bcmul('1', $binance->USDT2BTC($assets_data["USDT"]), config('app.btc_float_num'));
         $assets_data["assetsList"] = $assetsList;
         return show(1, $assets_data);

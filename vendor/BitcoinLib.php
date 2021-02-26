@@ -5,6 +5,7 @@ use Guzzle\Http\Client;
 
 class BitcoinLib
 {
+    //private $url = 'http://mybtc:btc2019@111.68.4.2:18443';   //另一台服务器
     private $url = 'http://cb:Zc8$u2MJx.,i@127.0.0.1:18443';
     private $jsonrpc = "1.0";
 
@@ -13,6 +14,28 @@ class BitcoinLib
             'jsonrpc' => $this->jsonrpc,
             'method' => "getnewaddress",
             'params' => [],
+            'id' => time(),
+        );
+        $data = json_encode($data);
+        $response = $this->post($data);
+        return $response;
+    }
+    public function createwallet() {
+        $data = array(
+            'jsonrpc' => $this->jsonrpc,
+            'method' => "createwallet",
+            'params' => ['coinshop'],
+            'id' => time(),
+        );
+        $data = json_encode($data);
+        $response = $this->post($data);
+        return $response;
+    }
+    public function backupwallet() {
+        $data = array(
+            'jsonrpc' => $this->jsonrpc,
+            'method' => "backupwallet",
+            'params' => ['/root/backup.dat'],
             'id' => time(),
         );
         $data = json_encode($data);
@@ -99,6 +122,17 @@ class BitcoinLib
         $data = array(
             'jsonrpc' => '1.0',
             'method' => 'getblockcount',
+            'params' => [],
+            'id' => time(),
+        );
+        $data = json_encode($data);
+        $response = $this->post($data);
+        return $response;
+    }
+    public function getwalletinfo() {
+        $data = array(
+            'jsonrpc' => '1.0',
+            'method' => 'getwalletinfo',
             'params' => [],
             'id' => time(),
         );

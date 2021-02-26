@@ -34,7 +34,7 @@ class JSON_RPC
 		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 		
 		$ret = curl_exec($ch);
-		
+
 		if($ret !== FALSE)
 		{
 			$formatted = $this->format_response($ret);

@@ -52,6 +52,28 @@ class ExtensionUser extends BaseModel
         }
         return $state;
     }
+    /**
+     * @name: 返回试用过期时间及使用开始时间
+     * @author: gz
+     * @description:
+     * @param {type}
+     * @return:
+     */
+    public static function loseTime($userId)
+    {
+        $data = self::get(['userId' => $userId]);
+        if($data['extensionId'] == 2){
+            $rtn = [
+                'expTime'=>date('Y-m-d H:I',$data['createTime']+86400*7),
+                'creTime'=>date('Y-m-d H:I',$data['createTime']),
+                
+            ]; 
+            $stime = ($data['createTime']+86400*7-time());
+            $stime > 0 ? $rtn['surTime']= floor($stime/86400) : $rtn['surTime'] = 0;
+            return $rtn;
+        }
+        return [];
+    }
 
     /**
      * @name: 用户级别
@@ -91,10 +113,10 @@ class ExtensionUser extends BaseModel
         $superiorId = ExtensionInvitation::where(['userId' => $userId])->value('superiorId'); //邀请人id
         $upTimeStr = ExtensionUserLog::getUpGradeTime($userId);
         if (!$superiorUserData) {
-            return ;
+            return false;
         }
         if ($superiorUserData['lose']) {
-            return ;
+            return false;
         }
         
         switch ($superiorUserData['extensionId']) {
@@ -175,7 +197,7 @@ class ExtensionUser extends BaseModel
                 # code...
                 break;
         }
-        return ;
+        return true;
     }
 
     /**

@@ -63,7 +63,9 @@ class Extension extends Base
             $speed = $gradeAndAuthData['data']['upgrade'];
             $returnData['speed'] = $speed;
             $amountInfo = ExtensionAssets::getAmountInfo($this->userId);
-            $extensionId = ExtensionUserLog::getNowGrade($this->userId);
+            $extensionId = ExtensionUser::where([
+                'userId'=>$this->userId
+            ])->value('extensionId');
             $returnData['extensionId'] = $extensionId;
 
             //显示区分
@@ -346,8 +348,8 @@ class Extension extends Base
             ],
 
         ];
-
-
+        $loseTimeData =  ExtensionUser::loseTime($this->userId);
+        $returnData['loseTimeData'] = $loseTimeData; 
 
         #2 已开通推广
         if ($isExtension) {
@@ -355,7 +357,9 @@ class Extension extends Base
             $speed = $gradeAndAuthData['data']['upgrade'];
             $returnData['speed'] = $speed;
             $amountInfo = ExtensionAssets::getAmountInfo($this->userId);
-            $extensionId = ExtensionUserLog::getNowGrade($this->userId);
+            $extensionId = ExtensionUser::where([
+                'userId'=>$this->userId
+            ])->value('extensionId');
             $returnData['extensionId'] = $extensionId;
             $conditionDire = [
                 'superiorId' => $this->userId,

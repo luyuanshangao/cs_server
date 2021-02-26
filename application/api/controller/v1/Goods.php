@@ -77,6 +77,7 @@ class Goods extends Base
             "sortType" => $sortType, //sale_desc price_asc price_desc
             "catId" => $catId,
         ];
+      
         $result = Vop::GoodsSearch($condition);
         
         $returnArr = [
@@ -97,6 +98,7 @@ class Goods extends Base
             $info['pic'] = $goods['imageUrl'];
             //价格
             $cachePrice = GoodsInfo::getGoodsInfoBySkuNum($goods['sku_num'], ['price']); //缓存的价格
+            
             if ($cachePrice['price']) {
                 $info['price'] = $this::toUsdt($cachePrice['price']);
                 $goodsInfoArr[] = $info;
